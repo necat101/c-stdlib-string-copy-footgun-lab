@@ -1,0 +1,1525 @@
+{
+  "46433029": {
+    "by": "firesteelrain",
+    "descendants": 145,
+    "id": 46433029,
+    "kids": [
+      46434944,
+      46433746,
+      46433634,
+      46435007,
+      46433731,
+      46433512,
+      46434936,
+      46433301,
+      46434787,
+      46442629,
+      46433584,
+      46433360,
+      46448927,
+      46433214,
+      46442286,
+      46433879
+    ],
+    "score": 265,
+    "time": 1767100480,
+    "title": "No strcpy either",
+    "type": "story",
+    "url": "https://daniel.haxx.se/blog/2025/12/29/no-strcpy-either/"
+  },
+  "46434944": {
+    "by": "Tharre",
+    "id": 46434944,
+    "kids": [
+      46435289,
+      46436412
+    ],
+    "parent": 46433029,
+    "text": "It&#x27;s worth noting that strcpy() isn&#x27;t just bad from a security perspective, on any CPU that&#x27;s not completely ancient it&#x27;s bad from a performance perspective as well.<p>Take the best case scenario, copying a string where the precise length is unknown but we know it will always fit in, say, 64 bytes.<p>In earlier days, I would always have used strcpy() for this task, avoiding the &quot;wasteful&quot; extra copies memcpy() would make. It felt efficient, after all you only replace a i &lt; len check with buf[i] != null inside your loop right?<p>But of course it doesn&#x27;t actually work that way, copying one byte at a time is inefficient so instead we copy as many as possible at once, which is easy to do with just a length check but not so easy if you need to find the null byte. And on top of that you&#x27;re asking the CPU to predict a branch that depends completely on input data.",
+    "time": 1767112237,
+    "type": "comment"
+  },
+  "46433746": {
+    "by": "t43562",
+    "id": 46433746,
+    "kids": [
+      46435816,
+      46433866,
+      46435257,
+      46438055,
+      46434165,
+      46473222,
+      46434969
+    ],
+    "parent": 46433029,
+    "text": "I&#x27;ve always wondered at the motivatons of the various string routines in C - every one of them seems to have some huge caveat which makes them useless.<p>After years I now think it&#x27;s essential to have a library which records at least how much memory is allocated to a string along with the pointer.<p>Something like this: \n<a href=\"https:&#x2F;&#x2F;github.com&#x2F;msteinert&#x2F;bstring\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;msteinert&#x2F;bstring</a>",
+    "time": 1767105623,
+    "type": "comment"
+  },
+  "46433634": {
+    "by": "swinglock",
+    "id": 46433634,
+    "kids": [
+      46433741,
+      46439785,
+      46441035,
+      46433991
+    ],
+    "parent": 46433029,
+    "text": "I&#x27;m surprised curlx_strcopy doesn&#x27;t return success. Sure you could check if dest[0] != &#x27;&#x2F;0&#x27; if you care to, but that&#x27;s not only clumsy to write but also error prone, and so checking for success is not encouraged.",
+    "time": 1767104881,
+    "type": "comment"
+  },
+  "46435007": {
+    "by": "ahoka",
+    "id": 46435007,
+    "kids": [
+      46436257,
+      46435588
+    ],
+    "parent": 46433029,
+    "text": "&quot;strncpy() is a weird function with a crappy API.&quot;<p>Well if you bother looking up that it&#x27;s originally created for non null-terminated strings, then it kinda makes sense.<p>The real problem begun when static analyzers started to recommend using it instead of strcpy (the real alternative used to be snprintf, now strlcpy).",
+    "time": 1767112604,
+    "type": "comment"
+  },
+  "46433731": {
+    "by": "loeg",
+    "id": 46433731,
+    "parent": 46433029,
+    "text": "A weird Annex-K like API.  The destination buffer size includes space for the trailing nul, but the source size only includes non-nul string bytes.<p>I don&#x27;t really think this adds anything over forcing callers to use memcpy directly, instead of strcpy.",
+    "time": 1767105527,
+    "type": "comment"
+  },
+  "46433512": {
+    "by": "Scubabear68",
+    "id": 46433512,
+    "kids": [
+      46433578,
+      46434143,
+      46433569
+    ],
+    "parent": 46433029,
+    "text": "From the article:<p>&gt; It has been proven numerous times already that strcpy in source code is like a honey pot for generating hallucinated vulnerability claims<p>This closing thought in the article really stood out to me. Why even bother to run AI checking on C code if the AI flags strcpy() as a problem without caveat?",
+    "time": 1767104154,
+    "type": "comment"
+  },
+  "46434936": {
+    "by": "Waterluvian",
+    "id": 46434936,
+    "kids": [
+      46442343,
+      46435815
+    ],
+    "parent": 46433029,
+    "text": "&gt; Enforce checks close to code<p>This makes a lot of sense but one time I find this gets messy is when there\u2019s times I need to do checks earlier in a dataset\u2019s lifetime. I don\u2019t want to pay to check multiple times, but I don\u2019t want to push the check up and it gets lost in a future refactor.<p>I\u2019m imagining a metadata for compile time that basically says, \u201cto act on this data it must have been first checked. I don\u2019t care when, so long as it has been by now.\u201d Which I\u2019m imagining is what Rust is doing with a Result type?  At that point it stops mattering how close to code a check is, as long as you type distinguish between checked and unchecked?",
+    "time": 1767112186,
+    "type": "comment"
+  },
+  "46433301": {
+    "by": "pama",
+    "id": 46433301,
+    "kids": [
+      46433576,
+      46433765
+    ],
+    "parent": 46433029,
+    "text": "Congrats on the completion of this effort! C&#x2F;C++ can be memory safe but take some effort.<p>IMHO the timeline figure could benefit in mobile from using larger fonts. Most plotting libraries have horrible font size defaults. I wonder why no library picked the other extreme end: I have never seen <i>too</i> large an axis label yet.",
+    "time": 1767102561,
+    "type": "comment"
+  },
+  "46434787": {
+    "by": "zahlman",
+    "id": 46434787,
+    "parent": 46433029,
+    "text": "&gt; To make sure that the size checks cannot be separated from the copy itself we introduced a string copy replacement function the other day that takes the target buffer, target size, source buffer and source string length as arguments and only if the copy can be made and the null terminator also fits there, the operation is done.<p>... And if the copy <i>can&#x27;t</i> be made, apparently the destination <i>is truncated</i> as long as there&#x27;s space (i.e., a null terminator is written at element 0). And it returns void.<p>I&#x27;m really not sold on that being the best way to handle the case where copying is impossible. I&#x27;d think that&#x27;s an error case that should be signaled with a non-zero return, leaving the destination buffer alone. Sure, that&#x27;s not supposed to happen (hence the DEBUGASSERT macro), but still. It might even be easier to design around that possibility rather than making it the caller&#x27;s responsibility to check <i>first</i>.",
+    "time": 1767111312,
+    "type": "comment"
+  },
+  "46442629": {
+    "by": "rf15",
+    "id": 46442629,
+    "parent": 46433029,
+    "text": "it feels like the arguments&#x27; off-by-one buffer size vs string length is horrible ergonomics and will probably lead to further usage errors in the future.<p>Yes I have a degree in bike shedding, why am I always getting this particular question",
+    "time": 1767172679,
+    "type": "comment"
+  },
+  "46433584": {
+    "by": "stabbles",
+    "id": 46433584,
+    "kids": [
+      46433828,
+      46433821
+    ],
+    "parent": 46433029,
+    "text": "Apart from Daniel Sternberg&#x27;s frequent complaints about AI slop, he also writes [1]<p>&gt; A new breed of AI-powered high quality code analyzers, primarily ZeroPath and Aisle Research, started pouring in bug reports to us with potential defects. We have fixed several hundred bugs as a direct result of those reports \u2013 so far.<p>[1] <a href=\"https:&#x2F;&#x2F;daniel.haxx.se&#x2F;blog&#x2F;2025&#x2F;12&#x2F;23&#x2F;a-curl-2025-review&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;daniel.haxx.se&#x2F;blog&#x2F;2025&#x2F;12&#x2F;23&#x2F;a-curl-2025-review&#x2F;</a>",
+    "time": 1767104617,
+    "type": "comment"
+  },
+  "46433360": {
+    "by": "snvzz",
+    "id": 46433360,
+    "kids": [
+      46433543,
+      46434614,
+      46433381
+    ],
+    "parent": 46433029,
+    "text": "The AI chatbot vulnerability reports part sure is sad to read.<p>Why is this even a thing and isn&#x27;t opt-in?<p>I dread the idea of starting to get notifications from them in my own projects.",
+    "time": 1767103041,
+    "type": "comment"
+  },
+  "46448927": {
+    "by": "juliangmp",
+    "id": 46448927,
+    "parent": 46433029,
+    "text": "String handling (or arrays in general) has got to be the single aspect of C that I despise the most.\nIts clunky to use, often needs unnecessary copying (e.g. atoi) and makes it really easy to invoke undefined behavior.<p>I still don&#x27;t get why a simple ptr+size type hasn&#x27;t made its way into the language. #embed got in but I guess a new type would have been too much... at least we got bool after a few decades.<p>Also, for those that want the trimming behavior of strncpy but with the null termination, you can replace the strncpy calls with snprintf.\nYou should also always enable -Wstringop-truncation.",
+    "time": 1767219370,
+    "type": "comment"
+  },
+  "46433214": {
+    "by": "senthil_rajasek",
+    "id": 46433214,
+    "kids": [
+      46433450
+    ],
+    "parent": 46433029,
+    "text": "Title is :<p>No strcpy either<p>@dang",
+    "time": 1767101880,
+    "type": "comment"
+  },
+  "46442286": {
+    "by": "self_awareness",
+    "id": 46442286,
+    "kids": [
+      46446996
+    ],
+    "parent": 46433029,
+    "text": "Bikeshedding.",
+    "time": 1767167915,
+    "type": "comment"
+  },
+  "46433879": {
+    "by": "TZubiri",
+    "id": 46433879,
+    "kids": [
+      46434285
+    ],
+    "parent": 46433029,
+    "text": "LMAO<p>After all this time the initial AI Slop report was right:<p><a href=\"https:&#x2F;&#x2F;hackerone.com&#x2F;reports&#x2F;2298307\" rel=\"nofollow\">https:&#x2F;&#x2F;hackerone.com&#x2F;reports&#x2F;2298307</a>",
+    "time": 1767106489,
+    "type": "comment"
+  },
+  "46435289": {
+    "by": "amelius",
+    "id": 46435289,
+    "kids": [
+      46436000,
+      46435410
+    ],
+    "parent": 46434944,
+    "text": "We should just move away from null-terminated strings, where we can, as fast as we can.",
+    "time": 1767114026,
+    "type": "comment"
+  },
+  "46436412": {
+    "by": "samshine",
+    "id": 46436412,
+    "kids": [
+      46442121,
+      46437070
+    ],
+    "parent": 46434944,
+    "text": "I haven&#x27;t seen a strcpy use a scalar loop in ages. Is this an ARM thing?",
+    "time": 1767119800,
+    "type": "comment"
+  },
+  "46435816": {
+    "by": "Someone",
+    "id": 46435816,
+    "kids": [
+      46436063,
+      46439551,
+      46442925
+    ],
+    "parent": 46433746,
+    "text": "&gt; I&#x27;ve always wondered at the motivatons of the various string routines in C<p>This idiom:<p><pre><code>    char hostname[20];\n    ...\n    strncpy( hostname, input, 20 );\n    hostname[19]=0;\n</code></pre>\nexists because <i>strncpy</i> was invented for copying file names that got stored in 14-byte arrays, zero terminated only if space permitted (<a href=\"https:&#x2F;&#x2F;stackoverflow.com&#x2F;a&#x2F;1454071\" rel=\"nofollow\">https:&#x2F;&#x2F;stackoverflow.com&#x2F;a&#x2F;1454071</a>)",
+    "time": 1767116424,
+    "type": "comment"
+  },
+  "46433866": {
+    "by": "formerly_proven",
+    "id": 46433866,
+    "kids": [
+      46434060,
+      46434670,
+      46433897,
+      46434781
+    ],
+    "parent": 46433746,
+    "text": "strncpy is fairly easy, that&#x27;s a special-purpose function for copying a C string into a fixed-width string, like typically used in old C applications for on-disk formats. E.g. you might have a char username[20] field which can contain up to 20 characters, with unused characters filled with NULs. That&#x27;s what strncpy is for. The destination argument should always be a fixed-size char array.<p>A couple years ago we got a new manual page courtesy of Alejandro Colomar just about this: <a href=\"https:&#x2F;&#x2F;man.archlinux.org&#x2F;man&#x2F;string_copying.7.en\" rel=\"nofollow\">https:&#x2F;&#x2F;man.archlinux.org&#x2F;man&#x2F;string_copying.7.en</a>",
+    "time": 1767106415,
+    "type": "comment"
+  },
+  "46435257": {
+    "by": "jerf",
+    "id": 46435257,
+    "parent": 46433746,
+    "text": "Yes, not having a length along with the string was a mistake. It dates from an era where every byte was precious and the thought of having two bytes instead of one for length was a significant loss.<p>I have long wondered how terrible it would have been to have some sort of &quot;varint&quot; at the beginning instead of a hard-coded number of bytes, but I don&#x27;t have enough experience with that generation to have a good feel for it.",
+    "time": 1767113854,
+    "type": "comment"
+  },
+  "46438055": {
+    "by": "CupricTea",
+    "id": 46438055,
+    "parent": 46433746,
+    "text": "&gt;every one of them seems to have some huge caveat which makes them useless<p>They were added into C before enough of the people designing it knew the consequences they would bring. Another fundamentally broken oversight is array-to-pointer demotion in function signatures instead of having fat pointer types.",
+    "time": 1767129153,
+    "type": "comment"
+  },
+  "46434165": {
+    "by": "lesuorac",
+    "id": 46434165,
+    "kids": [
+      46434430
+    ],
+    "parent": 46433746,
+    "text": "It&#x27;s from a time before computer viruses no?<p>But also all of this book-keeping takes up extra time and space which is a trade-off easily made nowadays.",
+    "time": 1767108121,
+    "type": "comment"
+  },
+  "46473222": {
+    "by": "Gibbon1",
+    "id": 46473222,
+    "parent": 46433746,
+    "text": "I remember some story that early on they thought function calls had little overhead and so used lots of little functions. And then found that actually no they were spending a lot of time doing function calls. But turned out no one cared.<p>To me the string library looks like small snippets of early leet C code hoisted into a library.",
+    "time": 1767420156,
+    "type": "comment"
+  },
+  "46434969": {
+    "by": "alexfoo",
+    "id": 46434969,
+    "kids": [
+      46435154,
+      46435806,
+      46439701,
+      46439209,
+      46436802
+    ],
+    "parent": 46433746,
+    "text": "Yet software developed in C, with all of the foibles of its string routines, has been sold and running for years with trillions of USD is total sales.<p>A library that records how much memory is allocated to a string along with the pointer isn&#x27;t a necessity.<p>Most people who write in C professionally are completely used to it although the footgun is (and all of the others are) always there lurking.<p>You&#x27;d generally just see code like this:-<p><pre><code>    char hostname[20];\n    ...\n    strncpy( hostname, input, 20 );\n    hostname[19]=0;\n</code></pre>\nThe problem obviously comes if you forget the line to NUL that last byte AND you have a input that is greater than 19 characters long.<p>(It&#x27;s also very easy to get this wrong, I almost wrote `hostname[20]=0;` first time round.)<p>I remember debugging a problem 20+ years ago on a customer site with some software that used Sybase Open&#x2F;Server that was crashing on startup. The underlying TDS communications protocol (<a href=\"https:&#x2F;&#x2F;www.freetds.org&#x2F;tds.html\" rel=\"nofollow\">https:&#x2F;&#x2F;www.freetds.org&#x2F;tds.html</a>) had a fixed 30 byte field for the hostname and the customer had a particularly long FQDN that was being copied in without any checks on its length. An easy fix once identified.<p>Back then though the consequences of a buffer overrun were usually just a mild annoyance like a random crash or something like the Morris worm. Nowadays such a buffer overrun is deadly serious as it can easily lead to data exfiltration, an RCE and&#x2F;or a complete compromise.<p>Heartbleed and Mongobleed had nothing to do with C string functions. They were both caused by trusting user supplied payload lengths. (C string functions are still a huge source of problems though.)",
+    "time": 1767112361,
+    "type": "comment"
+  },
+  "46433741": {
+    "by": "AlexeyBrin",
+    "id": 46433741,
+    "kids": [
+      46434649
+    ],
+    "parent": 46433634,
+    "text": "I guess the idea is that if the code does not crash at this line:<p><pre><code>    DEBUGASSERT(slen &lt; dsize);\n</code></pre>\nit means it succeeded. Although some compilers will remove the assertions in release builds.<p>I would have preferred an explicit error code though.",
+    "time": 1767105605,
+    "type": "comment"
+  },
+  "46439785": {
+    "by": "ahoka",
+    "id": 46439785,
+    "kids": [
+      46444537
+    ],
+    "parent": 46433634,
+    "text": "Yeah, thought the same. Expect some CVEs in the future.",
+    "time": 1767139549,
+    "type": "comment"
+  },
+  "46441035": {
+    "deleted": true,
+    "id": 46441035,
+    "parent": 46433634,
+    "time": 1767152591,
+    "type": "comment"
+  },
+  "46433991": {
+    "by": "jutter",
+    "id": 46433991,
+    "parent": 46433634,
+    "text": "This is especially bizarre given that he explains above that &quot;it is rare that copying a partial string is the right choice&quot; and that the previous solution returned an error...<p>So now it silently fails and sets dest to an empty string without even partially copying anything!?",
+    "time": 1767107132,
+    "type": "comment"
+  },
+  "46436257": {
+    "by": "manwe150",
+    "id": 46436257,
+    "kids": [
+      46436969,
+      46436904
+    ],
+    "parent": 46435007,
+    "text": "strlcpy is a BSD-ism that isn&#x27;t in posix. The official recommendation is stpecpy. Unfortunately, it is only implemented in the documentation, but not available anywhere unless you roll your own:<p><a href=\"https:&#x2F;&#x2F;man7.org&#x2F;linux&#x2F;man-pages&#x2F;man7&#x2F;string_copying.7.html\" rel=\"nofollow\">https:&#x2F;&#x2F;man7.org&#x2F;linux&#x2F;man-pages&#x2F;man7&#x2F;string_copying.7.html</a>",
+    "time": 1767118816,
+    "type": "comment"
+  },
+  "46435588": {
+    "by": "tourist2d",
+    "id": 46435588,
+    "kids": [
+      46437704,
+      46437003
+    ],
+    "parent": 46435007,
+    "text": "Your comment makes no sense. If it was designed for non-null terminated strings, why would it specifically pad after a null terminator?<p>I looked up the actual reason for its inception:<p>---<p><pre><code>    Rationale for the ANSI C Programming Language&quot;, Silicon Press 1990.\n\n    4.11.2.4 The strncpy function\n    strncpy was initially introduced into the C library to deal with fixed-length name fields in structures such as directory entries. Such fields are not used in the same way as strings: the trailing null is unnecessary for a maximum-length field, and setting trailing bytes for shorter names to null assures efficient field-wise comparisons. strncpy is not by origin a &quot;bounded strcpy,&quot; and the Committee has preferred to recognize existing practice rather than alter the function to better suit it to such use.</code></pre>",
+    "time": 1767115362,
+    "type": "comment"
+  },
+  "46433578": {
+    "by": "CGamesPlay",
+    "id": 46433578,
+    "parent": 46433512,
+    "text": "It&#x27;s not quite as black and white as the article implies. The hallucinated vulnerability reports don&#x27;t flag it &quot;without caveat&quot;, they invent a convoluted proof of vulnerability with a logical error somewhere along the way, and then this is what gets submitted as the vulnerability report. That&#x27;s why it&#x27;s so agitating for the maintainers: it requires reading a &quot;proof&quot; and finding the contradiction.",
+    "time": 1767104591,
+    "type": "comment"
+  },
+  "46434143": {
+    "by": "Sharlin",
+    "id": 46434143,
+    "kids": [
+      46457617
+    ],
+    "parent": 46433512,
+    "text": "Because these people who run AI checks on OSS code and submit bogus bug reports either assume that AIs don&#x27;t make mistakes, or just don&#x27;t care if the report is legit or not, because there&#x27;s little to no personal cost to them even if it isn&#x27;t.",
+    "time": 1767107952,
+    "type": "comment"
+  },
+  "46433569": {
+    "by": "saagarjha",
+    "id": 46433569,
+    "kids": [
+      46433660
+    ],
+    "parent": 46433512,
+    "text": "Because people are stupid and use AI for things it is not good at.",
+    "time": 1767104558,
+    "type": "comment"
+  },
+  "46442343": {
+    "by": "masklinn",
+    "id": 46442343,
+    "parent": 46434936,
+    "text": "&gt; Which I\u2019m imagining is what Rust is doing with a Result type?<p>Result only carries information about the success &#x2F; failure of an unspecified operation, it is not a long term signal and furthermore is not resistant to tampering (so a mistake processing the Result can undo the validation).<p>What you want in this case is a new separate type, which can only be constructed through the check operation. This is the ethos of &quot;parse, don&#x27;t validate&quot;.<p>And you&#x27;re correct that in that case you don&#x27;t need the check to be close to the consumer, in fact you want the opposite, for the check to be as close to the software edge as possible such that tainted data has limited to no presence inside the system and it&#x27;s difficult or impossible to unwittingly interact with it.<p>But of course the farther into that direction you head the more expressive a type system you need. And some constraints are not so easily checked as there&#x27;s a multitude of consumers each with their own foibles, or as in this case you need to check the interaction of multiple runtime objects.",
+    "time": 1767168810,
+    "type": "comment"
+  },
+  "46435815": {
+    "by": "deepsun",
+    "id": 46435815,
+    "parent": 46434936,
+    "text": "I&#x27;d use different types for those. Like Java&#x27;s String vs. CharSequence.",
+    "time": 1767116423,
+    "type": "comment"
+  },
+  "46433576": {
+    "by": "saagarjha",
+    "id": 46433576,
+    "kids": [
+      46437199,
+      46434442
+    ],
+    "parent": 46433301,
+    "text": "Removing strcpy from your code does not make it memory safe.",
+    "time": 1767104582,
+    "type": "comment"
+  },
+  "46433765": {
+    "by": "Tempest1981",
+    "id": 46433765,
+    "parent": 46433301,
+    "text": "Yes, the graph font-sizes seem intended for printing them on a single sheet of paper, vs squeezed into a single column in a blog.",
+    "time": 1767105724,
+    "type": "comment"
+  },
+  "46433828": {
+    "by": "molf",
+    "id": 46433828,
+    "parent": 46433584,
+    "text": "That&#x27;s very interesting! It links to:<p><a href=\"https:&#x2F;&#x2F;daniel.haxx.se&#x2F;blog&#x2F;2025&#x2F;10&#x2F;10&#x2F;a-new-breed-of-analyzers&#x2F;\" rel=\"nofollow\">https:&#x2F;&#x2F;daniel.haxx.se&#x2F;blog&#x2F;2025&#x2F;10&#x2F;10&#x2F;a-new-breed-of-analyz...</a><p>and its HN discussion:<p><a href=\"https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=45449348\">https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=45449348</a>",
+    "time": 1767106155,
+    "type": "comment"
+  },
+  "46433821": {
+    "by": "p2detar",
+    "id": 46433821,
+    "parent": 46433584,
+    "text": "So? Those are automated analysis tools and by &quot;slop&quot; he seems to refer to careless reports crafted using AI, solely for collecting bounties:<p><a href=\"https:&#x2F;&#x2F;gist.github.com&#x2F;bagder&#x2F;07f7581f6e3d78ef37dfbfc81fd1d1cd\" rel=\"nofollow\">https:&#x2F;&#x2F;gist.github.com&#x2F;bagder&#x2F;07f7581f6e3d78ef37dfbfc81fd1d...</a>",
+    "time": 1767106106,
+    "type": "comment"
+  },
+  "46433543": {
+    "by": "trollbridge",
+    "id": 46433543,
+    "kids": [
+      46435377
+    ],
+    "parent": 46433360,
+    "text": "Making a strcpy honeypot doesn\u2019t sound like a bad idea\u2026<p><pre><code>  void nobody_calls_me(const char *stuff) {\n          char *a, *b;\n          const size_t c = 1024;\n\n          a = calloc(c);\n          if (!a) return;\n          b = malloc(c);\n          if (!b) {\n                  free(a);\n                  return;\n          }\n          strncpy(a, stuff, c - 1);\n          strcpy(b, a);\n          strcpy(a, b);\n          free(a);\n          free(b);\n  }\n</code></pre>\nSome clever obfuscation would make this even more effective.",
+    "time": 1767104377,
+    "type": "comment"
+  },
+  "46434614": {
+    "by": "easterncalculus",
+    "id": 46434614,
+    "parent": 46433360,
+    "text": "It&#x27;s a symptom of complete failure of this industry that maintainers are even remotely thinking about, much less implementing changes in their work to stave off harassment over false security impact from bots.",
+    "time": 1767110384,
+    "type": "comment"
+  },
+  "46433381": {
+    "by": "Y_Y",
+    "id": 46433381,
+    "kids": [
+      46435237,
+      46433516
+    ],
+    "parent": 46433360,
+    "text": "Because humans generate and relay the slop-reports in the hopes of being helpful",
+    "time": 1767103182,
+    "type": "comment"
+  },
+  "46433450": {
+    "by": "Snild",
+    "id": 46433450,
+    "kids": [
+      46433816
+    ],
+    "parent": 46433214,
+    "text": "I don&#x27;t see a problem with that, but for the record, the title on the site is lower-case for me (both browser tab title, and the header when in reader mode).",
+    "time": 1767103701,
+    "type": "comment"
+  },
+  "46446996": {
+    "by": "user____name",
+    "id": 46446996,
+    "kids": [
+      46452120
+    ],
+    "parent": 46442286,
+    "text": "Libraries this well established can afford to bikeshed.",
+    "time": 1767206792,
+    "type": "comment"
+  },
+  "46434285": {
+    "by": "lesuorac",
+    "id": 46434285,
+    "parent": 46433879,
+    "text": "?<p>Nonce and websockets don&#x27;t appear at all in the blog post. The only thing the ai slop got right is that by removing strcpy curl will get less issues [submitted about it].",
+    "time": 1767108719,
+    "type": "comment"
+  },
+  "46436000": {
+    "by": "masklinn",
+    "id": 46436000,
+    "kids": [
+      46439044,
+      46436646,
+      46442924,
+      46442595
+    ],
+    "parent": 46435289,
+    "text": "We have. C is basically the only langage in any sort of widespread use where terminated strings are a thing.<p>Which of course causes issues when languages with more proper strings interact with C but there you go.",
+    "time": 1767117440,
+    "type": "comment"
+  },
+  "46435410": {
+    "by": "raverbashing",
+    "id": 46435410,
+    "parent": 46435289,
+    "text": "Yes<p>And maybe even have a (arch dependent) string buffer zone where the actual memory length is a multiple of 4 or even 8",
+    "time": 1767114561,
+    "type": "comment"
+  },
+  "46442121": {
+    "by": "amluto",
+    "id": 46442121,
+    "kids": [
+      46442423
+    ],
+    "parent": 46436412,
+    "text": "Modern x86 CPUs have actual instructions for strcpy that work fairly well. There were several false starts along the way, but the performance is fine now.",
+    "time": 1767165391,
+    "type": "comment"
+  },
+  "46437070": {
+    "by": "manwe150",
+    "id": 46437070,
+    "parent": 46436412,
+    "text": "The spec and some sanitizers use a scalar loop (because they need to avoid mistakenly detecting UB), but real world libc seem unlikely to use a scalar loop.",
+    "time": 1767123497,
+    "type": "comment"
+  },
+  "46436063": {
+    "by": "masklinn",
+    "id": 46436063,
+    "parent": 46435816,
+    "text": "Technically strncpy was invented to interact with null-padded fixed-size strings in general. We\u2019ve mostly (though not entirely) moved away from them but fixed-size strings used to be <i>very</i> common. You can see them all over old file formats still.",
+    "time": 1767117780,
+    "type": "comment"
+  },
+  "46439551": {
+    "by": "BobbyTables2",
+    "id": 46439551,
+    "kids": [
+      46444047
+    ],
+    "parent": 46435816,
+    "text": "It\u2019s also horrible because each project ends up reinventing their own abstractions or solutions for dealing with common things.<p>Destroys a lot of opportunity for code reuse &#x2F; integration.  Especially within a company.<p>Alternatively their code base remains a steaming pile of crap riddled with vulnerabilities.",
+    "time": 1767137995,
+    "type": "comment"
+  },
+  "46442925": {
+    "by": "messe",
+    "id": 46442925,
+    "parent": 46435816,
+    "text": "I&#x27;ve always assumed that the n in strncpy was meant to signify a max length N. Now I&#x27;m wondering if it might have stood for NUL padding.",
+    "time": 1767176155,
+    "type": "comment"
+  },
+  "46434060": {
+    "by": "Cyph0n",
+    "id": 46434060,
+    "kids": [
+      46434438,
+      46435636
+    ],
+    "parent": 46433866,
+    "text": "strncpy doesn\u2019t handle overlapping buffers (undefined behavior). Better to use strncpy_s (if you can) as it is safer overall. See: <a href=\"https:&#x2F;&#x2F;en.cppreference.com&#x2F;w&#x2F;c&#x2F;string&#x2F;byte&#x2F;strncpy.html\" rel=\"nofollow\">https:&#x2F;&#x2F;en.cppreference.com&#x2F;w&#x2F;c&#x2F;string&#x2F;byte&#x2F;strncpy.html</a>.<p>As an aside, this is part of the reason why there are so many C successor languages: you can end up with undefined behavior if you don\u2019t always <i>carefully</i> read the docs.",
+    "time": 1767107495,
+    "type": "comment"
+  },
+  "46434670": {
+    "by": "dundarious",
+    "id": 46434670,
+    "parent": 46433866,
+    "text": "Yes, these were also common in several wire formats I had to use for market data&#x2F;entry.<p>You would think char symbol[20] would be inefficient for such performance sensitive software, but for the vast majority of exchanges, their technical competencies were not there to properly replace these readable symbol&#x2F;IDs with a compact&#x2F;opaque integer ID like a u32. Several exchanges tried and they had numerous issues with IDs not being &quot;properly&quot; unique across symbol types, or time (restarts intra-day or shortly before the open were a common nightmare), etc. A char symbol[20] and strncpy was a dream by comparison.",
+    "time": 1767110676,
+    "type": "comment"
+  },
+  "46433897": {
+    "by": "ufo",
+    "id": 46433897,
+    "kids": [
+      46433973
+    ],
+    "parent": 46433866,
+    "text": "A big footgun with strncpy is that the output string may not be null terminated.",
+    "time": 1767106621,
+    "type": "comment"
+  },
+  "46434781": {
+    "by": "dingi",
+    "id": 46434781,
+    "kids": [
+      46435830
+    ],
+    "parent": 46433866,
+    "text": "Isn&#x27;t strlcpy the safer solution these days?",
+    "time": 1767111292,
+    "type": "comment"
+  },
+  "46434430": {
+    "by": "rini17",
+    "id": 46434430,
+    "parent": 46434165,
+    "text": "Yes, in the old times if you crashed a program or whole computer with invalid input, it was your fault.<p>Viruses did exist, and these were considered users&#x27; fault too.",
+    "time": 1767109452,
+    "type": "comment"
+  },
+  "46435154": {
+    "by": "__float",
+    "id": 46435154,
+    "kids": [
+      46435460
+    ],
+    "parent": 46434969,
+    "text": "&gt; Yet software developed in C, with all of the foibles of its string routines, has been sold and running for years with trillions of USD is total sales.<p>This doesn&#x27;t seem very relevant. The same can be said of countless other bad APIs: see years of bad PHP, tons of memory safety bugs in C, and things that have surely led to significant sums of money lost.<p>&gt; It&#x27;s also very easy to get this wrong, I almost wrote `hostname[20]=0;` first time round.<p>Why would you do this separately every single time, then?<p>The problem with bad APIs is that even the best programmers will occasionally make a mistake, and you should use interfaces (or...languages!) that prevent it from happening in the first place.<p>The fact we&#x27;ve gotten as far as we have with C does not mean this is a defensible API.",
+    "time": 1767113354,
+    "type": "comment"
+  },
+  "46435806": {
+    "by": "t43562",
+    "id": 46435806,
+    "kids": [
+      46439131
+    ],
+    "parent": 46434969,
+    "text": "I learned C in about 1989&#x2F;1990 and have used it a lot since then.  I have worked on a fair amount of rotten commercial C code, sold at a high price, in which every millimeter of extra functionality was bought with sweat and blood. I once spent a month finding a memory corruption issue that happened every 2 weeks with a completely different stack trace which, in the end, required a 1-line fix.<p>The effort was usually out of proportion with the achievement.<p>I crashed my own computer a lot before I got Linux. Do you remember far pointers? :-( In those days millions of dollars were made by operating systems without memory protection that couldn&#x27;t address more than 640k of memory.  One accepted that programs sometimes crashed the whole computer - about once a week on average.<p>Despite considering myself an acceptable programmer I still make mistakes in C quite easily and I use valgrind or the sanitizers quite heavily to save myself from them.  I think the proliferation of other languages is the result of all this.<p>In spite of this I find C elegant and I think 90% of my errors are in string handling so therefore if it had a decent string handling library it would be enormously better.   I don&#x27;t really think pure ASCIIZ strings are so marvelous or so fast that we have to accept their bullshit.",
+    "time": 1767116405,
+    "type": "comment"
+  },
+  "46439701": {
+    "by": "throw0101c",
+    "id": 46439701,
+    "parent": 46434969,
+    "text": "&gt; <i>The underlying TDS communications protocol (<a href=\"https:&#x2F;&#x2F;www.freetds.org&#x2F;tds.html\" rel=\"nofollow\">https:&#x2F;&#x2F;www.freetds.org&#x2F;tds.html</a>) had a fixed 30 byte field for the hostname and the customer had a particularly long FQDN that was being copied in without any checks on its length. An easy fix once identified.</i><p>I had to file a bug with a vendor because their hostname handling had a similar issue: I think it was 64 max.<p>There was some pushback about if it was &quot;really&quot; a problem, so I ended up quoting the relevant RFCs to argue that they were not compliant with Internet standards, and eventually they fixed the issue.",
+    "time": 1767139018,
+    "type": "comment"
+  },
+  "46439209": {
+    "by": "saghm",
+    "id": 46439209,
+    "kids": [
+      46443568
+    ],
+    "parent": 46434969,
+    "text": "&gt; Yet software developed in C, with all of the foibles of its string routines, has been sold and running for years with trillions of USD is total sales.<p>Even with the premise that sales of software is a good metric for analyzing design of the language (which I think is arguable at best), we don&#x27;t know that even more money might have been made with better strings in C. You coming justify pretty much anything with that argument. MongoDB (which indicentally is on C++ and presumably makes plenty of use of std::string) made millions of dollars despite having the bug you mention, so why bother fixing it?",
+    "time": 1767135928,
+    "type": "comment"
+  },
+  "46436802": {
+    "by": "bluecalm",
+    "id": 46436802,
+    "parent": 46434969,
+    "text": "&gt;&gt;(It&#x27;s also very easy to get this wrong, I almost wrote `hostname[20]=0;` first time round.)<p>Impossible to get wrong with a modern compiler that will warn you on that or LSP that will scream the moment you type ; and hit enter&#x2F;esc.",
+    "time": 1767121930,
+    "type": "comment"
+  },
+  "46434649": {
+    "by": "swinglock",
+    "id": 46434649,
+    "parent": 46433741,
+    "text": "assert() is always only compiled if NDEBUG is not defined. I hope DEBUGASSERT is just that too because it really sounds like it, even more so than assert does.<p>But regardless of whether the assert is compiled or not, its presence strongly signals that &quot;in a C program strcpy should only be used when we have full control of both&quot; is true for this new function as well.",
+    "time": 1767110573,
+    "type": "comment"
+  },
+  "46444537": {
+    "by": "spacechild1",
+    "id": 46444537,
+    "parent": 46439785,
+    "text": "What kind of CVE would you expect? The destination buffer will always contain a valid null-terminated string (as long as the buffer size is not zero).",
+    "time": 1767192529,
+    "type": "comment"
+  },
+  "46436969": {
+    "by": "bentley",
+    "id": 46436969,
+    "kids": [
+      46437017
+    ],
+    "parent": 46436257,
+    "text": "strlcpy is in POSIX now, actually.<p><a href=\"https:&#x2F;&#x2F;pubs.opengroup.org&#x2F;onlinepubs&#x2F;9799919799&#x2F;functions&#x2F;strlcat.html\" rel=\"nofollow\">https:&#x2F;&#x2F;pubs.opengroup.org&#x2F;onlinepubs&#x2F;9799919799&#x2F;functions&#x2F;s...</a>",
+    "time": 1767123021,
+    "type": "comment"
+  },
+  "46436904": {
+    "by": "tptacek",
+    "id": 46436904,
+    "parent": 46436257,
+    "text": "Who cares? Just vendor it into your project. It&#x27;s a tiny string manipulation function.<p>(I agree with the author of the piece that strlcpy doesn&#x27;t actually solve the real problem.)",
+    "time": 1767122618,
+    "type": "comment"
+  },
+  "46437704": {
+    "by": "masklinn",
+    "id": 46437704,
+    "parent": 46435588,
+    "text": "&gt; If it was designed for non-null terminated strings, why would it specifically pad after a null terminator?<p>Padded and terminated strings are completely different beasts. And the text you quote tells you black on white that strncpy deals in padded strings.",
+    "time": 1767127039,
+    "type": "comment"
+  },
+  "46437003": {
+    "by": "bentley",
+    "id": 46437003,
+    "parent": 46435588,
+    "text": "\u201cfixed-length name fields in structures such as directory entries\u201d<p>\u201cthe trailing null is unnecessary for a maximum-length field\u201d<p>That <i>is</i> a non\u2013null terminated string.",
+    "time": 1767123201,
+    "type": "comment"
+  },
+  "46457617": {
+    "by": "skirge",
+    "id": 46457617,
+    "parent": 46434143,
+    "text": "even stupid report may give you invites to private programs",
+    "time": 1767298619,
+    "type": "comment"
+  },
+  "46433660": {
+    "by": "Tempest1981",
+    "id": 46433660,
+    "kids": [
+      46434329
+    ],
+    "parent": 46433569,
+    "text": "&gt; people are stupid<p>people overestimate AI",
+    "time": 1767105088,
+    "type": "comment"
+  },
+  "46437199": {
+    "by": "pama",
+    "id": 46437199,
+    "parent": 46433576,
+    "text": "Apologies. I never meant to imply that of course. It is a long and arduous process, and this is but a single tiny step.",
+    "time": 1767124182,
+    "type": "comment"
+  },
+  "46434442": {
+    "by": "kjjfnkeknrn",
+    "id": 46434442,
+    "kids": [
+      46434988
+    ],
+    "parent": 46433576,
+    "text": "Removing strcpy from your code does make it a little memory safer.",
+    "time": 1767109497,
+    "type": "comment"
+  },
+  "46435377": {
+    "by": "snvzz",
+    "id": 46435377,
+    "kids": [
+      46444812
+    ],
+    "parent": 46433543,
+    "text": "That got those Core SDI abo vibes.<p>Flashback of writing exploits for these back in high school.",
+    "time": 1767114429,
+    "type": "comment"
+  },
+  "46435237": {
+    "by": "nottorp",
+    "id": 46435237,
+    "parent": 46433381,
+    "text": "There is or was a cash bug bounty.<p>And even if not, the motivation is building a reputation as a security \u201cexpert\u201d.",
+    "time": 1767113768,
+    "type": "comment"
+  },
+  "46433516": {
+    "by": "captn3m0",
+    "id": 46433516,
+    "parent": 46433381,
+    "text": "s&#x2F;being helpful&#x2F;making money.",
+    "time": 1767104217,
+    "type": "comment"
+  },
+  "46433816": {
+    "by": "1f60c",
+    "id": 46433816,
+    "kids": [
+      46434234
+    ],
+    "parent": 46433450,
+    "text": "I think the submission originally had a typo (&quot;strpy&quot;, with no C)",
+    "time": 1767106079,
+    "type": "comment"
+  },
+  "46452120": {
+    "by": "self_awareness",
+    "id": 46452120,
+    "parent": 46446996,
+    "text": "True. But for most projects, this is pretty much counterproductive.",
+    "time": 1767253311,
+    "type": "comment"
+  },
+  "46439044": {
+    "by": "saghm",
+    "id": 46439044,
+    "kids": [
+      46439909,
+      46443922
+    ],
+    "parent": 46436000,
+    "text": "Given that the C ABI is basically the standard for how arbitrary languages interact, I wouldn&#x27;t characterize all of the headaches this can cause as just when other languages interact with C; arguably it can come up when any two languages interact at all, even if neither are C.",
+    "time": 1767134959,
+    "type": "comment"
+  },
+  "46436646": {
+    "by": "thayne",
+    "id": 46436646,
+    "kids": [
+      46439523
+    ],
+    "parent": 46436000,
+    "text": "We should move away from it in C usage as well.<p>Ideally, the standard would include a type that packages a string with its length, and had functions that used that type and&#x2F;or took the length as an argument. But even without that it is possible avoid using null terminated strings in a lot of places.",
+    "time": 1767121013,
+    "type": "comment"
+  },
+  "46442924": {
+    "by": "throwaway2037",
+    "id": 46442924,
+    "kids": [
+      46443359,
+      46442943,
+      46445132
+    ],
+    "parent": 46436000,
+    "text": "Doesn&#x27;t C++&#x27;s std::string also use a null terminated char* string internally?  Do you count that also?",
+    "time": 1767176149,
+    "type": "comment"
+  },
+  "46442595": {
+    "by": "ofalkaed",
+    "id": 46442595,
+    "parent": 46436000,
+    "text": "&gt;Which of course causes issues when languages with more proper strings interact with C but there you go.<p>Is is an issue of &quot;more proper strings&quot; or just languages trying to have their cake and eat it too? have their sense of a string and C interoperability. I think this is were we see the strength of Zig, it&#x27;s strings are designed around and extend the C idea of string instead of just saying our way is better and we are just going to blame C for any friction.<p>My standard disclaimer comes into play here, I am not a programmer and very much a humanities sort, I could be completely missing what is obvious. Just trying to understand better.<p>Edit: That was not quite right, Zig has its string literal for C compatibility. There is something I am missing here in my understanding of strings in the broader sense.",
+    "time": 1767172104,
+    "type": "comment"
+  },
+  "46442423": {
+    "by": "adrian_b",
+    "id": 46442423,
+    "kids": [
+      46443463,
+      46442588
+    ],
+    "parent": 46442121,
+    "text": "They have instructions for memcpy&#x2F;memmove (i.e. rep movs), not for strcpy.<p>They also have instructions for strlen (i.e. rep scasb), so you could implement strcpy with very few instructions by finding the length and then copying the string.<p>Executing first strlen, then validating the sizes and then copying with memcpy if possible is actually the recommended way for implementing a replacement for strcpy, inclusive in the parent article.<p>On modern Intel&#x2F;AMD CPUs, &quot;rep movs&quot; is usually the optimal way to implement memcpy above some threshold of data size, e.g. on older AMD Zen 3 CPUs the threshold was 2 kB. I have not tested more recent CPUs to see if the threshold has diminished.<p>On the old AMD Zen 3 there was also a certain size range above 2 kB at sizes comparable with the L3 cache memory where their implementation interacted somehow badly with the cache and using &quot;non-temporal&quot; vector register transfers outperformed &quot;rep movs&quot;. Despite that performance bug for certain string lengths, using &quot;rep movs&quot; for any size above 2 kB gave a good enough performance.<p>More recent CPUs might be better than that.",
+    "time": 1767169901,
+    "type": "comment"
+  },
+  "46444047": {
+    "by": "delaminator",
+    "id": 46444047,
+    "kids": [
+      46461520
+    ],
+    "parent": 46439551,
+    "text": "That&#x27;s how everything works. You start off with some atomics and build up from there. Things that people like get standardized, And before you know what&#x27;s going on it&#x27;s called stdlib.<p>It took a decade between Stroustrup&#x27;s 1985 book &quot;The C++ Programming Language&quot; and the STL proposed and accepted by the ANSI&#x2F;ISO committee in 1994.",
+    "time": 1767189299,
+    "type": "comment"
+  },
+  "46434438": {
+    "by": "Asooka",
+    "id": 46434438,
+    "kids": [
+      46435010,
+      46440056
+    ],
+    "parent": 46434060,
+    "text": "Back when strncpy was written there was no undefined behaviour (as the compiler interprets it today). The result would depend on the implementation and might differ between invocations, but it was never the &quot;this will not happen&quot; footgun of today. The modern interpretation of undefined behaviour in C is a big blemish on the otherwise excellent standards committee, committed (hah) in the name of extremely dubious performance claims. If &quot;undefined&quot; meaning &quot;left to the implementation&quot; was good enough when CPU frequency was measured in MHz and nobody had more than one, surely it is good enough today too.<p>Also I&#x27;m not sure what you mean with C successor languages not having undefined behaviour, as both Rust and Zig inherit it wholesale from LLVM. At least last I checked that was the case, correct me if I am wrong. Go, Java and C# all have sane behaviour, but those are much higher level.",
+    "time": 1767109480,
+    "type": "comment"
+  },
+  "46435636": {
+    "by": "formerly_proven",
+    "id": 46435636,
+    "parent": 46434060,
+    "text": "&gt; strncpy doesn\u2019t handle overlapping buffers (undefined behavior).<p>It would make little sense for strncpy to handle this case, since, as I pointed out above, it converts between different kinds of strings.",
+    "time": 1767115593,
+    "type": "comment"
+  },
+  "46433973": {
+    "by": "kccqzy",
+    "id": 46433973,
+    "kids": [
+      46434083,
+      46434113
+    ],
+    "parent": 46433897,
+    "text": "Yeah but fixed width strings don\u2019t need null termination. You know exactly how long the string is. No need to find that null byte.",
+    "time": 1767107030,
+    "type": "comment"
+  },
+  "46435830": {
+    "by": "jandrese",
+    "id": 46435830,
+    "kids": [
+      46436401,
+      46444671
+    ],
+    "parent": 46434781,
+    "text": "I don&#x27;t think anybody in this thread read the article.<p>Strlcpy tries to improve the situation but still has problems.  As the article points out it is almost never desirable to truncate a string passed into strXcpy, yet that is what all of those functions do.  Even worse, they attempt to run to the end of the string regardless of the size parameter so they don&#x27;t even necessarily save you from the unterminated string case.  They also do loads of unnecessary work, especially if your source string is very long (like a mmaped text file).<p>Strncpy got this behavior because it was trying to implement the dubious truncation feature and needed to tell the programmer where their data was truncated.  Strlcpy adopted the same behavior because it was trying to be a drop in replacement.  But it was a dumb idea from the start and it causes a lot of pain unnecessarily.<p>The crazy thing is that strcpy has the best interface, but of course it&#x27;s only useful in cases where you have externally verified that the copy is safe before you call it, and as the article points out if you know this then you can just use memcpy instead.<p>As you ponder the situation you inevitably come to the conclusion that it would have been better if strings brought along their own length parameter instead of relying on a terminator, but then you realize that in order to support editing of the string as well as passing substrings you&#x27;ll need to have some struct that has the base pointer, length, and possibly a substring offset and length and you&#x27;ve just re-invented slices.  It&#x27;s also clear why a system like this was not invented for the original C that was developed on PDP machines with just a few hundred KB of RAM.<p>Is it really too late for the C committee to not develop a modern string library that ships with base C26 or C27?  I get that they really hate adding features, but C strings have been a problem for over 50 years now, and I&#x27;m not advocating for the old strings to be removed or even deprecated at this time.  Just that a modern replacement be available and to encourage people to use them for new code.",
+    "time": 1767116466,
+    "type": "comment"
+  },
+  "46435460": {
+    "by": "alexfoo",
+    "id": 46435460,
+    "parent": 46435154,
+    "text": "Sure, the post I was replying to made it sound like it&#x27;s a surprise that anything written in C could ever have been a success.<p>Not many people starting a new project (commercial or otherwise) are likely to start with C, for very good reason. I&#x27;d have to have a very compelling reason to do so, as you say there are plenty of more suitable alternatives. Years ago many of the third party libraries available only had C style ABIs and calling these from other languages was clumsy and convoluted (and would often require implementing cstring style strings in another language).<p>&gt; Why would you do this separately every single time, then?<p>It was just an illustration or what people used to do. The &quot;set the trailing NUL byte after a strncpy() call&quot; just became a thing lots of people did and lots of people looked for in code reviews - I&#x27;ve even seen automated checks. It was in a similar bucket to &quot;stuff is allocated, let me make sure it is freed in every code path so there aren&#x27;t any memory leaks&quot;, etc.<p>Many others would have written their own function like `curlx_strcopy()` in the original article, it&#x27;s not a novel concept to write your own function to implement a better version of an API.",
+    "time": 1767114852,
+    "type": "comment"
+  },
+  "46439131": {
+    "by": "alexfoo",
+    "id": 46439131,
+    "parent": 46435806,
+    "text": "&gt; I learned C in about 1989&#x2F;1990 and have used it a lot since then. I have worked on a fair amount of rotten commercial C code, sold at a high price, in which every millimeter of extra functionality was bought with sweat and blood. I once spent a month finding a memory corruption issue that happened every 2 weeks with a completely different stack trace which, in the end, required a 1-line fix.<p>That sums up one of my old roles where this kind of thing accounted for about 10% of my time over a 10 year period.<p>Heisenbug, mutating stack traces, weeks between occurrences, 1 line fix, do some other interesting work before the next weird thing comes along.<p>I think the longest running one I had (several years) was some weird interaction between pthread_cond_wait() and pthread_cond_broadcast(). Ugh.",
+    "time": 1767135424,
+    "type": "comment"
+  },
+  "46443568": {
+    "by": "alexfoo",
+    "id": 46443568,
+    "kids": [
+      46447343
+    ],
+    "parent": 46439209,
+    "text": "That wasn&#x27;t really the point I was making.<p>It was more a response to the OP&#x27;s comment of:<p>&gt; I&#x27;ve always wondered at the motivatons of the various string routines in C - every one of them seems to have some huge caveat which makes them useless.<p>Which, to me, sounded like it was a surprise that anything written in C could be a success at all given that something as basic as the string handling (which is pretty fundamental) is bordering on useless.<p>As I put in my other comment, there were plenty of reasons way back in the 80s&#x2F;90s why C was chosen for a lot of software, and hardly any (if any at all) of those reasons remain nowadays.<p>&gt; MongoDB (which indicentally is on C++ and presumably makes plenty of use of std::string) made millions of dollars despite having the bug you mention, so why bother fixing it?<p>Again, that&#x27;s not the point I was making, no-one said anything about not fixing something because of how much money it has made.<p>All it comes down to is that a lot of very successful software is very shoddily written, in a variety of languages, not just notoriously memory-unsafe languages like C. Well written software, or software written in a &quot;better&quot; language, might have a better chance of &quot;succeeding&quot; (whatever that means), but that doesn&#x27;t mean that awful software can&#x27;t succeed.",
+    "time": 1767184219,
+    "type": "comment"
+  },
+  "46437017": {
+    "by": "manwe150",
+    "id": 46437017,
+    "parent": 46436969,
+    "text": "Ah, good point. I forgot it had just gotten added. Past context <a href=\"https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=36765747\">https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=36765747</a>",
+    "time": 1767123258,
+    "type": "comment"
+  },
+  "46434329": {
+    "by": "lesuorac",
+    "id": 46434329,
+    "kids": [
+      46434924,
+      46434405,
+      46446199
+    ],
+    "parent": 46433660,
+    "text": "Its weird though because looking through the hackone reports in the slop wiki page there aren&#x27;t actually reproduction steps. It&#x27;s basically always just a line of code and an explanation of how a function can be mis-used but not a &quot;make a webserver that has this hardcoded response&quot;.<p>So like why doesn&#x27;t the person iterate with the AI until they understand the bug (and then ultimately discover it doesn&#x27;t exist)? Like have any of this bug reports actually paid out? It seems like quickly people should just give up from a lack of rewards.",
+    "time": 1767108935,
+    "type": "comment"
+  },
+  "46434988": {
+    "by": "alexfoo",
+    "id": 46434988,
+    "parent": 46434442,
+    "text": "Removing strcpy from your code makes it a little less memory unsafe.<p>(Depends on what you replace it with obviously...)",
+    "time": 1767112507,
+    "type": "comment"
+  },
+  "46444812": {
+    "by": "trollbridge",
+    "id": 46444812,
+    "parent": 46435377,
+    "text": "In an interesting way, this is an attempt to exploit LLMs into revealing themselves.",
+    "time": 1767194058,
+    "type": "comment"
+  },
+  "46434234": {
+    "by": "Snild",
+    "id": 46434234,
+    "parent": 46433816,
+    "text": "Ah.",
+    "time": 1767108484,
+    "type": "comment"
+  },
+  "46439909": {
+    "by": "tialaramex",
+    "id": 46439909,
+    "kids": [
+      46447416
+    ],
+    "parent": 46439044,
+    "text": "Arguably the C ABI was one of those Worse is Better problems like the C language itself. Better languages already existed, but C was basically free and easy to implement, so now there&#x27;s C everywhere. It seems likely that if not for this ABI we might have an ABI today where all languages which want to offer FFI can agree on how to represent say the immutable slice reference type (Rust&#x27;s &amp;[T], C++ std::span)<p>Just an agreed ABI for slices would be enough that language A&#x27;s growable array type (Rust&#x27;s Vec, C++ std::vector, but equally the ArrayList or some languages even call this just &quot;list&quot;) of say 32-bit signed integers can give a (read only) reference to language B to look at all these 32-bit signed integers without language&#x27;s A and B having to agree how growable arrays work at all. In C today you have to go wrestle with the ABI pig for much less.",
+    "time": 1767140557,
+    "type": "comment"
+  },
+  "46443922": {
+    "deleted": true,
+    "id": 46443922,
+    "parent": 46439044,
+    "time": 1767188005,
+    "type": "comment"
+  },
+  "46439523": {
+    "by": "BobbyTables2",
+    "id": 46439523,
+    "kids": [
+      46444306
+    ],
+    "parent": 46436646,
+    "text": "The standard C library can\u2019t even manipulate NUL terminated strings for common use cases\u2026<p>Simple things aren\u2019t simple - want to append a formatted string to an existing buffer? Good luck!  Now do it with UTF-8!<p>I truly feel the standard library design did more disservice to C than the language definition itself.",
+    "time": 1767137782,
+    "type": "comment"
+  },
+  "46443359": {
+    "by": "zabzonk",
+    "id": 46443359,
+    "parent": 46442924,
+    "text": "Since C++11 it is required to be null-terminated, you can access the terminator with (for e.g.) operator[], and the string can contain non-terminator null characters.",
+    "time": 1767181497,
+    "type": "comment"
+  },
+  "46442943": {
+    "by": "anal_reactor",
+    "id": 46442943,
+    "parent": 46442924,
+    "text": "This doesn&#x27;t count because it&#x27;s implemented in a way &quot;if you don&#x27;t need null-terminated string, you won&#x27;t see it&quot;.",
+    "time": 1767176444,
+    "type": "comment"
+  },
+  "46445132": {
+    "by": "masklinn",
+    "id": 46445132,
+    "parent": 46442924,
+    "text": "It has nul-termination for compatibility with C, so you can call c_str and get a C string. With the caveat that an std::string can have nuls anywhere, which breaks C semantics. But C++ does not use that itself.",
+    "time": 1767196001,
+    "type": "comment"
+  },
+  "46443463": {
+    "by": "amluto",
+    "id": 46443463,
+    "parent": 46442423,
+    "text": "Whoops, this proves I\u2019m not really a userspace assembly programmer\u2026<p>But you can indeed safely read past the end if a buffer if you don\u2019t cross a page boundary and you aren\u2019t bound by the rules of, say, C.",
+    "time": 1767182800,
+    "type": "comment"
+  },
+  "46442588": {
+    "by": "gizmo686",
+    "id": 46442588,
+    "kids": [
+      46442897
+    ],
+    "parent": 46442423,
+    "text": "X86-64 has the REP prefix for string operation. When combined with the MOVS instruction, that is pretty much an instruction for strcpy.",
+    "time": 1767172027,
+    "type": "comment"
+  },
+  "46461520": {
+    "by": "BobbyTables2",
+    "id": 46461520,
+    "kids": [
+      46462764
+    ],
+    "parent": 46444047,
+    "text": "Yeah but those standard libraries are still inadequate 30 years later.<p>Imagine a hypothetical Python scenario where every application and library had their own list implementations with differently named methods and behavior.<p>Yet C is exactly that.  Is it not common place to log messages to a file?  How many applications and code bases DO NOT use syslog().  And if one wants to use syslog, then assert failures won\u2019t get logged there\u2026<p>Sure, with a custom assertion and logging framework one can get reasonable behavior.  But it\u2019s not automatic. Hence, a Tower of Babel \u2026",
+    "time": 1767329240,
+    "type": "comment"
+  },
+  "46435010": {
+    "by": "Cyph0n",
+    "id": 46435010,
+    "kids": [
+      46440117
+    ],
+    "parent": 46434438,
+    "text": "The problem isn&#x27;t undefined behavior per se; I was using it as an example for strncpy. Rust is a no - in fact, the goal of (safe) Rust is to eliminate undefined behavior. Zig on the other hand I don&#x27;t know about.<p>In general, I see two issues at play here:<p>1. C relies heavily on unsized pointers (vs. fat pointers), which is why strncpy_s had to &quot;break&quot; strncpy in order to improve bounds checks.<p>2. strncpy memory aliasing restrictions are not encoded in the API and can only be conveyed through docs. This is a footgun.<p>For (1), Rust APIs of this type operate on sized slices, or in the case of strings, string slices. Zig defines strings as sized byte slices.<p>For (2), Rust enforces this invariant via the borrow checker by disallowing (at compile-time) a shared slice reference that points to an overlapping mutable slice reference. In other words, an API like this is simply not possible to define in (safe) Rust, which means you (as the user) do not need to pore over the docs for each stdlib function you use looking for memory-related footguns.",
+    "time": 1767112633,
+    "type": "comment"
+  },
+  "46440056": {
+    "by": "tialaramex",
+    "id": 46440056,
+    "parent": 46434438,
+    "text": "Rust safe subset doesn&#x27;t have UB. At all. So long as you never write the &quot;unsafe&quot; keyword you&#x27;re fine, the compiler will check you are obeying all of the language rules at all times.<p>Whereas in C, oops, sorry, you broke a rule you didn&#x27;t even know existed and so that&#x27;s Undefined Behaviour left and right. Some of it you could argue falls into the category you&#x27;re describing, where in a better world it should have been made Implementation Defined, not UB, and too bad. However lots of it is just because the language was designed a very long time ago and prioritized ease of implementation.<p>If you wish the language was properly defined, you should use (safe) Rust. If you just wish that when you write nonsense the compiler should somehow guess what you meant and do that, you&#x27;re not actually a programmer, find a practice which suits you better - take up knitting, learn to paint, something like that.",
+    "time": 1767141988,
+    "type": "comment"
+  },
+  "46434083": {
+    "by": "ninkendo",
+    "id": 46434083,
+    "kids": [
+      46434784,
+      46434283
+    ],
+    "parent": 46433973,
+    "text": "Until you pass them as a `char *` by accident and it eventually makes its way to some code that does expect null termination.<p>There\u2019s languages where you can be quite confident your string will never need null termination\u2026 but C is not one of them.",
+    "time": 1767107671,
+    "type": "comment"
+  },
+  "46434113": {
+    "by": "Sharlin",
+    "id": 46434113,
+    "kids": [
+      46434490,
+      46434960,
+      46434175
+    ],
+    "parent": 46433973,
+    "text": "Good luck though remembering not to pass one to any function that does expect to find a null terminator.",
+    "time": 1767107800,
+    "type": "comment"
+  },
+  "46436401": {
+    "by": "cyberpunk",
+    "id": 46436401,
+    "kids": [
+      46436524
+    ],
+    "parent": 46435830,
+    "text": "Do they really need to at this point? Just include bstrlib and stop thinking about it?",
+    "time": 1767119744,
+    "type": "comment"
+  },
+  "46444671": {
+    "by": "jcranmer",
+    "id": 46444671,
+    "parent": 46435830,
+    "text": "&gt; Is it really too late for the C committee to not develop a modern string library that ships with base C26 or C27? I get that they really hate adding features, but C strings have been a problem for over 50 years now, and I&#x27;m not advocating for the old strings to be removed or even deprecated at this time. Just that a modern replacement be available and to encourage people to use them for new code.<p>The next version of C (C2y) is expected to be C29, not C26 or C27. And work has been done on a new string library: see, e.g. <a href=\"https:&#x2F;&#x2F;www.open-std.org&#x2F;jtc1&#x2F;sc22&#x2F;wg14&#x2F;www&#x2F;docs&#x2F;n3306.pdf\" rel=\"nofollow\">https:&#x2F;&#x2F;www.open-std.org&#x2F;jtc1&#x2F;sc22&#x2F;wg14&#x2F;www&#x2F;docs&#x2F;n3306.pdf</a> (not the only proposal!). That said, I would be surprised if anything gets merged into the standard in less than a decade, simply because the committee is not organizationally set up for major library overhauls like this.",
+    "time": 1767193299,
+    "type": "comment"
+  },
+  "46447343": {
+    "by": "saghm",
+    "id": 46447343,
+    "parent": 46443568,
+    "text": "&gt;&gt;  I&#x27;ve always wondered at the motivatons of the various string routines in C - every one of them seems to have some huge caveat which makes them useless.<p>&gt; Which, to me, sounded like it was a surprise that anything written in C could be a success at all given that something as basic as the string handling (which is pretty fundamental) is bordering on useless.<p>I guess to me that seems like pretty big logical leap. It seems equally plausible that they consider C successful and not going anywhere, so they care about improving the way strings are handled (and therefore gave an example of something they would consider better). Your response seems to be trying to defend against an implication that wasn&#x27;t apparent in what you were responding to, so it wasn&#x27;t clear at all to me what point you were trying to make.",
+    "time": 1767208836,
+    "type": "comment"
+  },
+  "46434924": {
+    "by": "zahlman",
+    "id": 46434924,
+    "parent": 46434329,
+    "text": "&gt; So like why doesn&#x27;t the person iterate with the AI until they understand the bug (and then ultimately discover it doesn&#x27;t exist)? Like have any of this bug reports actually paid out? It seems like quickly people should just give up from a lack of rewards.<p>This sounds a bit like expecting the people who followed a &quot;make your own drop-shipping company&quot; tutorial to try using the products they&#x27;re shipping to understand that they suck.",
+    "time": 1767112108,
+    "type": "comment"
+  },
+  "46434405": {
+    "by": "amenhotep",
+    "id": 46434405,
+    "kids": [
+      46434931
+    ],
+    "parent": 46434329,
+    "text": "As long as the number of people newly being convinced that AI generated bounty demands are a good way to make money equals or exceeds the number of people realising it isn&#x27;t and giving up, the problem remains.<p>Not helped, I imagine, that once you realise it doesn&#x27;t work, an easy pivot is to start convincing new people that it&#x27;ll work if they pay you money for a course on it.",
+    "time": 1767109302,
+    "type": "comment"
+  },
+  "46446199": {
+    "by": "umanwizard",
+    "id": 46446199,
+    "parent": 46434329,
+    "text": "Have you ever had the chance to look at the public-facing support email inbox for a SaaS company? You get absolutely bombarded with these low quality \u201cbug reports\u201d from people trying to farm bounties. They do not care whether the bug is real or impactful, it\u2019s a game of volume for them.",
+    "time": 1767202044,
+    "type": "comment"
+  },
+  "46447416": {
+    "by": "saghm",
+    "id": 46447416,
+    "parent": 46439909,
+    "text": "From a historical perspective, my guess is that C interop in some fashion has basically been table stakes for any language of the past few decades, and when you want to plug two arbitrary languages together, if that&#x27;s the one common API they both speak, it&#x27;s the most obvious way to do it. I&#x27;m not sure I&#x27;d consider this &quot;worse is better&quot; as much as just self-reinforcing emergent behavior. I&#x27;m not even sure I can come up with any example of an explicitly designed format for arbitrary language interop other than maybe WASM (which of course is a lot more than just that, but it does try to tackle the problem of letting languages interact in an agnostic way).",
+    "time": 1767209299,
+    "type": "comment"
+  },
+  "46444306": {
+    "by": "smeeagain2",
+    "dead": true,
+    "id": 46444306,
+    "parent": 46439523,
+    "text": "[dead]",
+    "time": 1767191166,
+    "type": "comment"
+  },
+  "46442897": {
+    "by": "messe",
+    "id": 46442897,
+    "kids": [
+      46443014
+    ],
+    "parent": 46442588,
+    "text": "No, it&#x27;s an instruction for <i>memcpy</i>. You still need to compute the string length first, which means touching every byte individually because you can&#x27;t use SIMD due to alignment assumptions (or lack thereof) and the potential to touch uninitialized or unmapped memory (when the string crosses a page boundary).",
+    "time": 1767175891,
+    "type": "comment"
+  },
+  "46462764": {
+    "by": "delaminator",
+    "id": 46462764,
+    "kids": [
+      46466320
+    ],
+    "parent": 46461520,
+    "text": "That&#x27;s Linux C you&#x27;re talking about. Many, many, many C codebases don&#x27;t use syslog.",
+    "time": 1767343718,
+    "type": "comment"
+  },
+  "46440117": {
+    "by": "loeg",
+    "id": 46440117,
+    "kids": [
+      46440311
+    ],
+    "parent": 46435010,
+    "text": "&gt; For (2), Rust enforces this invariant via the borrow checker by disallowing (at compile-time) a shared slice reference that points to an overlapping mutable slice reference.<p>At least the last time I cared about this, the borrow checker wouldn&#x27;t allow mutable and immutable borrows from the same underlying object, even if they did not overlap.  (Which is more restrictive, in an obnoxious way.)",
+    "time": 1767142693,
+    "type": "comment"
+  },
+  "46434784": {
+    "by": "kccqzy",
+    "id": 46434784,
+    "kids": [
+      46435849,
+      46435837
+    ],
+    "parent": 46434083,
+    "text": "You don\u2019t do that by accident. Fixed-width strings are thoroughly outdated and unusual. Your mental model of them is very different from regular C strings.",
+    "time": 1767111300,
+    "type": "comment"
+  },
+  "46434283": {
+    "deleted": true,
+    "id": 46434283,
+    "parent": 46434083,
+    "time": 1767108714,
+    "type": "comment"
+  },
+  "46434490": {
+    "by": "kevin_thibedeau",
+    "id": 46434490,
+    "kids": [
+      46442285
+    ],
+    "parent": 46434113,
+    "text": "Ignore the prefix and always treat strncpy() as a special binary data operation for an era where shaving bytes on storage was important. It&#x27;s for copying into a struct with array fields or direct to an encoded block of memory. In that context you will never be dependent on the presence of NUL. The only safe usage with strings is to check for NUL on every use or wrap it. At that point you may as well switch to a new function with better semantics.",
+    "time": 1767109691,
+    "type": "comment"
+  },
+  "46434960": {
+    "by": "integralid",
+    "id": 46434960,
+    "parent": 46434113,
+    "text": "That&#x27;s not a problem with strncpy, right? Fixed width records are a thing of the past, and even then it was only used for on-disk storage.",
+    "time": 1767112323,
+    "type": "comment"
+  },
+  "46434175": {
+    "by": "andrepd",
+    "id": 46434175,
+    "kids": [
+      46434261
+    ],
+    "parent": 46434113,
+    "text": "Seriously. We have type systems and compilers that help us to not forget these things. It&#x27;s not the 70s anymore!",
+    "time": 1767108168,
+    "type": "comment"
+  },
+  "46436524": {
+    "by": "jandrese",
+    "id": 46436524,
+    "parent": 46436401,
+    "text": "Having an official replacement is the only thing that I think will motivate the majority C programmers to finally switch.",
+    "time": 1767120453,
+    "type": "comment"
+  },
+  "46434931": {
+    "by": "zahlman",
+    "id": 46434931,
+    "kids": [
+      46436358
+    ],
+    "parent": 46434405,
+    "text": "Apparently FOSS developers have been getting this kind of slop report even though they <i>clearly don&#x27;t</i> offer a bug bounty.",
+    "time": 1767112175,
+    "type": "comment"
+  },
+  "46443014": {
+    "by": "ncruces",
+    "id": 46443014,
+    "parent": 46442897,
+    "text": "You do aligned reads, which can&#x27;t crash.<p>Not even musl uses a scalar loop, if it can do aligned reads&#x2F;writes: <a href=\"https:&#x2F;&#x2F;git.musl-libc.org&#x2F;cgit&#x2F;musl&#x2F;tree&#x2F;src&#x2F;string&#x2F;stpcpy.c\" rel=\"nofollow\">https:&#x2F;&#x2F;git.musl-libc.org&#x2F;cgit&#x2F;musl&#x2F;tree&#x2F;src&#x2F;string&#x2F;stpcpy.c</a><p>And you don&#x27;t need to worry about C UB if you do it in ASM.",
+    "time": 1767177303,
+    "type": "comment"
+  },
+  "46466320": {
+    "by": "BobbyTables2",
+    "id": 46466320,
+    "parent": 46462764,
+    "text": "Exactly!<p>At least Python has a standardized \u201clogging\u201d module where applications can control the format and destination.<p>But with the standard C library, there is little common ground. Solutions to the same basic problems are constantly reinvented - differently.",
+    "time": 1767370785,
+    "type": "comment"
+  },
+  "46440311": {
+    "by": "Cyph0n",
+    "id": 46440311,
+    "kids": [
+      46440478
+    ],
+    "parent": 46440117,
+    "text": "Do you mean borrows for different fields of a struct? If so, that\u2019s handled today - it\u2019s sometimes called \u201csplitting borrows\u201d: <a href=\"https:&#x2F;&#x2F;doc.rust-lang.org&#x2F;nomicon&#x2F;borrow-splitting.html\" rel=\"nofollow\">https:&#x2F;&#x2F;doc.rust-lang.org&#x2F;nomicon&#x2F;borrow-splitting.html</a>",
+    "time": 1767144651,
+    "type": "comment"
+  },
+  "46435849": {
+    "by": "arka2147483647",
+    "id": 46435849,
+    "kids": [
+      46437174,
+      46437954
+    ],
+    "parent": 46434784,
+    "text": "Sadly, all the bug trackers are full of bugs relating to char*. So you very much do those by accident. And in C, fixed width strings are not in any way rare or unusual. Go to any c codebase you will find stuff like:<p><pre><code>   char buf[12];\n   sprintf(buf, &quot;%s%s&quot;, this, that); &#x2F;&#x2F; or\n   strcat(buf, ...) &#x2F;&#x2F; or\n   strncpy(buf, ...) &#x2F;&#x2F; and so on..</code></pre>",
+    "time": 1767116560,
+    "type": "comment"
+  },
+  "46435837": {
+    "by": "ninkendo",
+    "id": 46435837,
+    "parent": 46434784,
+    "text": "The mental model doesn\u2019t matter, it\u2019s the compiler\u2019s model that is going to bite you. If the compiler doesn\u2019t reject it, it will happen eventually.",
+    "time": 1767116494,
+    "type": "comment"
+  },
+  "46442285": {
+    "by": "masklinn",
+    "id": 46442285,
+    "kids": [
+      46446218
+    ],
+    "parent": 46434490,
+    "text": "&gt; an era where shaving bytes on storage was important<p>Fixed size strings don\u2019t save bytes on storage tho, when the bank reserves 20 bytes for first name and you\u2019re called Jon that\u2019s 17 bytes doing fuckall.<p>What they do is make the entire record fixed size and give every field a fixed relative position so it\u2019s very easy to access items, move record around, reuse allocations (or use static allocation), \u2026 cycles is what they save.",
+    "time": 1767167913,
+    "type": "comment"
+  },
+  "46434261": {
+    "deleted": true,
+    "id": 46434261,
+    "parent": 46434175,
+    "time": 1767108619,
+    "type": "comment"
+  },
+  "46436358": {
+    "by": "pixl97",
+    "id": 46436358,
+    "parent": 46434931,
+    "text": "There are no shortage of people wanting to be able to  say they found CVE-XXXX-XXX or a bug in product X.",
+    "time": 1767119493,
+    "type": "comment"
+  },
+  "46440478": {
+    "by": "loeg",
+    "id": 46440478,
+    "kids": [
+      46443053,
+      46440566
+    ],
+    "parent": 46440311,
+    "text": "Not exactly -- independent subranges of the same range (as would be relevant to something like memcpy&#x2F;memmove&#x2F;strcpy).  E.g.,<p><a href=\"https:&#x2F;&#x2F;godbolt.org&#x2F;z&#x2F;YhGajnhEG\" rel=\"nofollow\">https:&#x2F;&#x2F;godbolt.org&#x2F;z&#x2F;YhGajnhEG</a><p>It&#x27;s mentioned later in the same article you shared above.",
+    "time": 1767146256,
+    "type": "comment"
+  },
+  "46437174": {
+    "by": "snickerbockers",
+    "id": 46437174,
+    "parent": 46435849,
+    "text": "Thats only really a problem if this and that are coming from an external source and have not been truncated.  I really don&#x27;t see this as any more significant of a problem than all the many high level scripting languages where you can potentially inject code into a variable and interpret it.<p>There are certainly ways in which the c library could&#x27;ve been better (eg making strncpy handle the case where the source string is longer than n) but ultimately it will always need to operate under the assumption that the people using it are both competent and acting in good faith.",
+    "time": 1767124056,
+    "type": "comment"
+  },
+  "46437954": {
+    "by": "kccqzy",
+    "id": 46437954,
+    "parent": 46435849,
+    "text": "When you write such code your mental model is C strings, not fixed-width strings, the intended use case for strncpy.",
+    "time": 1767128521,
+    "type": "comment"
+  },
+  "46446218": {
+    "by": "josefx",
+    "id": 46446218,
+    "parent": 46442285,
+    "text": "&gt; Fixed size strings don\u2019t save bytes on storage tho<p>I have seen plenty of fixed strings in the 8 to 20 byte range, not much, but often enough for a passable identifier. The memory management overhead for a simple dynamically allocated string is probably larger than that even on a 32 bit system.",
+    "time": 1767202139,
+    "type": "comment"
+  },
+  "46443053": {
+    "by": "oneshtein",
+    "id": 46443053,
+    "kids": [
+      46446700
+    ],
+    "parent": 46440478,
+    "text": "<p><pre><code>  fn f() {\n    let mut v = vec![1, 2, 3, 4, 5];\n    let (header, tail) = v.split_at_mut(1);\n    b(&amp;header[0], &amp;mut tail[0]);\n  }</code></pre>",
+    "time": 1767177721,
+    "type": "comment"
+  },
+  "46440566": {
+    "by": "Cyph0n",
+    "id": 46440566,
+    "kids": [
+      46440824
+    ],
+    "parent": 46440478,
+    "text": "Gotcha. There is a split_at_mut method that splits a mutable slice reference into two. That doesn\u2019t address the problem you had, but I think that\u2019s best you can do with safe Rust.",
+    "time": 1767147036,
+    "type": "comment"
+  },
+  "46446700": {
+    "by": "loeg",
+    "id": 46446700,
+    "kids": [
+      46448859
+    ],
+    "parent": 46443053,
+    "text": "split_at_mut is just unsafe code (and sibling comment mentioned it hours before you did).  The borrow checker doesn&#x27;t natively understand that.",
+    "time": 1767204890,
+    "type": "comment"
+  },
+  "46440824": {
+    "by": "loeg",
+    "id": 46440824,
+    "parent": 46440566,
+    "text": "Yeah. It just isn&#x27;t something the borrow checker natively understands.",
+    "time": 1767150297,
+    "type": "comment"
+  },
+  "46448859": {
+    "by": "Cyph0n",
+    "id": 46448859,
+    "kids": [
+      46452412
+    ],
+    "parent": 46446700,
+    "text": "It is safe btw. The difference is that it returns two mutable references vs. one shared ref and one mutable ref. But as they noted, a mutable ref can always be \u201cdowngraded\u201d into a shared ref.",
+    "time": 1767218838,
+    "type": "comment"
+  },
+  "46452412": {
+    "by": "loeg",
+    "id": 46452412,
+    "kids": [
+      46456936
+    ],
+    "parent": 46448859,
+    "text": "The implementation is unsafe, as I said:<p>&gt; split_at_mut is just unsafe code (and sibling comment mentioned it hours before you did). The borrow checker doesn&#x27;t natively understand that.<p><a href=\"https:&#x2F;&#x2F;doc.rust-lang.org&#x2F;src&#x2F;core&#x2F;slice&#x2F;mod.rs.html#2086\" rel=\"nofollow\">https:&#x2F;&#x2F;doc.rust-lang.org&#x2F;src&#x2F;core&#x2F;slice&#x2F;mod.rs.html#2086</a>",
+    "time": 1767257254,
+    "type": "comment"
+  },
+  "46456936": {
+    "by": "Cyph0n",
+    "id": 46456936,
+    "kids": [
+      46457041
+    ],
+    "parent": 46452412,
+    "text": "No, that\u2019s the unchecked version. Two people are telling you that this method exists and is safe, so I am not sure why you\u2019re still doubting this lol.",
+    "time": 1767294031,
+    "type": "comment"
+  },
+  "46457041": {
+    "by": "bmandale",
+    "id": 46457041,
+    "kids": [
+      46457655
+    ],
+    "parent": 46456936,
+    "text": "The checked variant just calls the unchecked, and the panicking variant calls the checked variant. They all need to call unsafe code. See here for details: <a href=\"https:&#x2F;&#x2F;doc.rust-lang.org&#x2F;nomicon&#x2F;borrow-splitting.html\" rel=\"nofollow\">https:&#x2F;&#x2F;doc.rust-lang.org&#x2F;nomicon&#x2F;borrow-splitting.html</a>",
+    "time": 1767294822,
+    "type": "comment"
+  },
+  "46457655": {
+    "by": "Cyph0n",
+    "id": 46457655,
+    "kids": [
+      46472607
+    ],
+    "parent": 46457041,
+    "text": "Then you misunderstand what unsafe means in Rust. Every single Rust binary needs to eventually call unsafe code at some layer of the callstack.<p>Is creating a TCP socket using stdlib functions unsafe? How about writing to a file? Or acquiring a mutex?<p>I would suggest doing some more reading before chiming in here :)",
+    "time": 1767298942,
+    "type": "comment"
+  },
+  "46472607": {
+    "by": "bmandale",
+    "id": 46472607,
+    "kids": [
+      46492204
+    ],
+    "parent": 46457655,
+    "text": "You have totally misunderstood what the person you are talking with means by unsafe. Perhaps you should resolve that prior to such condescensions.",
+    "time": 1767412109,
+    "type": "comment"
+  },
+  "46492204": {
+    "by": "Cyph0n",
+    "id": 46492204,
+    "parent": 46472607,
+    "text": "Indeed I have haha - my bad :)<p>Easier to lose context with longer comment chains...",
+    "time": 1767560688,
+    "type": "comment"
+  }
+}

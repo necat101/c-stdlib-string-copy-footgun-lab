@@ -10,6 +10,13 @@ Tool: `hackernews` skill – `python3 ./hackernews get-item --id 46433029`
 - Descendants: 145
 - Comments fetched: 146
 
+Committed evidence artifacts (in repo root):
+- `hn_thread_evidence.md` (this file) – auditable summary with comment IDs and sentiment themes
+- `hn_comments_sanitized.txt` – full comment text dump (146 comments, HTML stripped, ~52KB)
+- `hn_nodes_sanitized.json` – raw HN API node data including story + all comments (~80KB)
+
+The full fetched thread is committed in the repo – the "146 comments fetched" claim is auditable from committed files alone, not just /tmp.
+
 ## Key comment IDs (for audit)
 
 - 46434944 (Tharre) – strcpy performance footgun on modern CPUs, NUL scan branch prediction
@@ -49,6 +56,8 @@ Tool: `hackernews` skill – `python3 ./hackernews get-item --id 46433029`
 15. C vs C standard library ergonomics
 16. "locally safe call" ≠ "API hard to misuse"
 
-Full comment dump saved at build time: `/tmp/hn_comments.txt` (146 comments, ~full text, HTML stripped).
+Full comment dump committed in repo:
+- `hn_comments_sanitized.txt` – 146 comments, HTML stripped, ~52KB
+- `hn_nodes_sanitized.json` – raw HN API nodes, ~80KB
 
-This file exists to make the HN-thread-reading step auditable. The README sentiment summary is derived from the above API-fetched comments, not from web search or the linked article alone.
+This file exists to make the HN-thread-reading step auditable. The README sentiment summary is derived from the above API-fetched comments, not from web search or the linked article alone. All HN evidence artifacts are committed to the repository – the thread-reading claim is fully reproducible from repo files.

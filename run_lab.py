@@ -201,19 +201,37 @@ cases_size = cases_path.stat().st_size
 binary_size = os.path.getsize(binary_path) if os.path.exists(binary_path) else 0
 elapsed_total = time.perf_counter() - start_wall
 current, peak = tracemalloc.get_traced_memory()
+
+# Build claim-precision-scoped RESULTS.md
+c_validated = compile_ok and os.path.exists(binary_path) and binary_size > 0
+result_scope_note = "compiler-backed C execution results" if c_validated else "Python policy-observer results, NOT compiler-backed C execution results"
+harness_status_note = "compiled and executed" if c_validated else "source committed, NOT compiler-validated – no compiler was available"
+compiler_status_line = f"compiler_selected: {compiler_name}" if compiler_name else "compiler_selected: None (no compiler found – zig cc / cc / clang / gcc all absent)"
+
 with open("RESULTS.md","w") as f:
     f.write("# c-stdlib-string-copy-footgun-lab RESULTS\n\n")
-    f.write(f"compiler_selected: {compiler_name}\n")
+    f.write(f"**Claim precision:** pass/fail/skip counts below are **{result_scope_note}**.")
+    if not c_validated:
+        f.write(" The C harness source (`c_string_copy_footgun_harness.c`) is committed but was **NOT compiler-validated** in this run")
+        if not compiler_name:
+            f.write(" – no compiler was available in the sandbox environment")
+        f.write(".\n\n")
+    else:
+        f.write("\n\n")
+    f.write(f"{compiler_status_line}\n")
     f.write(f"compiler_path: {compiler_path}\n")
     f.write(f"compiler_version: {compiler_version}\n")
     f.write(f"compile_command: {compile_cmd}\n")
     f.write(f"compile_ok: {compile_ok}\n")
     f.write(f"compile_elapsed: {compile_elapsed:.4f}s\n")
     f.write(f"harness_elapsed: {harness_elapsed:.4f}s\n\n")
+    f.write(f"**C harness status: {harness_status_note}.**\n\n")
+    if not c_validated:
+        f.write("**Do NOT claim C API observations executed.**\n\n")
     f.write(f"case_count: {len(cases)}\n")
     f.write(f"method_count: {len(methods)}\n")
-    f.write(f"pass_count: {pass_count}\n")
-    f.write(f"fail_count: {fail_count}\n")
+    f.write(f"pass_count: {pass_count}  # {'C execution' if c_validated else 'Python policy-observer'} passes\n")
+    f.write(f"fail_count: {fail_count}    # naive method expected failures\n")
     f.write(f"skip_count: {skip_count}\n")
     f.write(f"naive_expected_fail_count: {naive_expected_fail_count}\n\n")
     f.write("## counts by method\n")
@@ -231,16 +249,28 @@ with open("RESULTS.md","w") as f:
     f.write(f"- timing: time.perf_counter\n")
     f.write(f"- tracemalloc current: {current}, peak: {peak}\n")
     f.write(f"- total_elapsed: {elapsed_total:.4f}s\n")
-    f.write(f"- subprocess_count: 2 (compile + run)\n\n")
+    subprocess_note = "compile + run" if c_validated else "compiler discovery only (no compiler found)"
+    f.write(f"- subprocess_count: {subprocess_note}\n\n")
     f.write("## scope / honesty\n")
     f.write("- HN-thread-access: yes, via Hacker News API CLI, thread id 46433029, 146 comments fetched\n")
+    f.write("  - committed evidence: `hn_thread_evidence.md`, `hn_comments_sanitized.txt` (~52KB), `hn_nodes_sanitized.json` (~80KB)\n")
     f.write("- network/API/package-manager during benchmark: none, except HN fetch beforehand\n")
     f.write("- undefined-behavior-not-run: yes – strcpy/strcat/strlen UB cases marked skip, not executed\n")
-    f.write("- string-copy-scope: toy local C harness only\n")
+    f.write("- string-copy-scope: toy local lab, Python policy observers")
+    if c_validated:
+        f.write(" + C harness execution\n")
+    else:
+        f.write(" + C harness source (NOT compiler-validated in this no-compiler run)\n")
+    if not c_validated:
+        f.write(f"- **C harness compile/run status: NOT validated – no compiler available (zig cc / cc / clang / gcc all absent). Source is committed at `c_string_copy_footgun_harness.c`.**\n")
+        f.write(f"- **pass/fail/skip counts: Python policy-observer results only, NOT C execution results**\n")
     f.write("- portability-not-tested: strlcpy, Annex K, POSIX – marked not_tested\n")
     f.write("- production-parser-not-tested: CLI/config/network/Unicode/locale – marked not_tested\n")
-    f.write("- no libbsd, no curl source, no fuzzing, no sanitizers, no static analyzers\n\n")
-    f.write("## conclusions\n")
+    f.write("- no libbsd, no curl source, no fuzzing, no sanitizers, no static analyzers\n")
+    f.write("- no apt/sudo/root package installs, no downloaded toolchains\n\n")
+    f.write("## conclusions\n\n")
+    if not c_validated:
+        f.write("All conclusions below are derived from **Python policy-observer results and HN thread sentiment analysis**, NOT from compiler-backed C execution (no compiler was available in the test environment).\n\n")
     f.write("- strcpy is locally safe only after external size checks; checks can drift from the call site over time (HN sentiment).\n")
     f.write("- strncpy is NOT a safer strcpy; it can produce unterminated output, or zero-padded fixed-width fields (original PDP/V7 file-name use).\n")
     f.write("- snprintf is useful for bounded writes but return value MUST be checked for truncation.\n")
@@ -254,8 +284,13 @@ with open("RESULTS.md","w") as f:
     f.write("- AI/static-analysis hallucinated vulnerability reports were a major HN thread theme (curl context).\n")
     f.write("- C ABI / interop keeps NUL-terminated strings entrenched.\n")
     f.write("- length-carrying strings / slices came up as the real fix, out of scope for C stdlib.\n")
-    f.write("- naive methods assuming strncpy always NUL-terminates, ignoring snprintf return, etc., fail expected cases.\n")
+    f.write("- naive methods assuming strncpy always NUL-terminates, ignoring snprintf return, etc., fail expected cases")
+    if not c_validated:
+        f.write(" (4 expected failures in Python policy observer)")
+    f.write(".\n")
     f.write("- this toy lab does NOT prove production input safety, curl correctness, libc conformance, Unicode handling, etc.\n")
+    if not c_validated:
+        f.write("- **C harness source is committed but was NOT compiler-validated in this run – claims about C API behavior are based on ISO C documentation and HN thread discussion, validated via Python policy observers only.**\n")
 
 print("wrote RESULTS.md, results_rows.csv/json")
 print(summary)

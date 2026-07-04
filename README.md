@@ -6,9 +6,14 @@ HN thread: https://news.ycombinator.com/item?id=46433029 — "No strcpy either" 
 
 ## Hacker News thread access
 
-The Hacker News thread was read using the Hacker News API CLI (`hackernews` skill, Firebase API) **before writing this README**. 146 comments were fetched (thread id 46433029). See `hn_thread_evidence.md` for an auditable summary. This README reflects actual HN discussion themes, not just the linked blog post.
+The Hacker News thread was read using the Hacker News API CLI (`hackernews` skill, Firebase API) **before writing this README**. 146 comments were fetched (thread id 46433029).
 
-Do NOT treat the linked article or cppreference docs alone as sufficient – the HN thread is the primary sentiment source.
+Committed evidence artifacts:
+- `hn_thread_evidence.md` – auditable summary with comment IDs and sentiment themes
+- `hn_comments_sanitized.txt` – full comment text dump (146 comments, HTML stripped, ~52KB)
+- `hn_nodes_sanitized.json` – raw HN API node data (~80KB)
+
+This README reflects actual HN discussion themes, not just the linked blog post. Do NOT treat the linked article or cppreference docs alone as sufficient – the HN thread is the primary sentiment source.
 
 ## What HN users were actually debating
 
@@ -41,31 +46,36 @@ This is a **toy local correctness lab, NOT** a production string library, libc c
 - No real files, credentials, command-line arguments, protocol inputs, downloaded corpora, or external parsers.
 - No apt/sudo/root, no Docker, no external C libraries, no libbsd, no OpenBSD/glibc source, no curl source, no build systems (cmake/make/meson/ninja), no Rust/Go/node, no fuzzers, no sanitizers, no static analyzers.
 - Python stdlib only for orchestration.
-- C harness compiled with a portable compiler (zig cc preferred, else cc/clang/gcc) – **no compiler was available in the sandbox environment at lab run time; this is recorded honestly in RESULTS.md**.
+- **C harness source is committed** (`c_string_copy_footgun_harness.c`), demonstrating strcpy/strncpy/strcat/strncat/snprintf/memcpy/memmove/strlen + project-local `copy_result_t` wrapper. **In the recorded no-compiler sandbox run, the harness was NOT compiled or executed** – see `RESULTS.md` / `VERIFY.md` for honest compiler availability reporting.
+- When a compiler IS available, `run_lab.py` discovers it in order: zig cc, cc, clang, gcc – records compiler path, version, compile command, and harness run output.
 - UB cases (strcpy too-small dest, overlap, nonterminated source; strcat bad dest; memcpy overlap; strlen nonterminated) are **marked skip / not_run, never executed**.
 
 The point: test the HN debate in a tiny reproducible way – strcpy local safety vs API misuse risk, strncpy NOT being safer strcpy, snprintf return-value checking, memcpy length-known prerequisite, memmove overlap semantics, truncation as policy choice, wrapper API design, and clear boundaries between HN discussion, ISO C, POSIX/BSD, Annex K, and local libc observations.
+
+**Claim precision:** the 416 pass / 4 expected naive fail / 481 skip counts in `RESULTS.md` are **Python policy-observer results**, not compiler-backed C execution results. The C harness source is committed but was not compiler-validated in the no-compiler sandbox run recorded in `RESULTS.md` / `VERIFY.md`.
 
 ## Running
 
 ```bash
 python3 -m py_compile generate_cases.py run_lab.py
 python3 generate_cases.py   # writes cases.json, 53 cases
-python3 run_lab.py          # finds compiler, compiles harness, runs observations, writes RESULTS.md
+python3 run_lab.py          # compiler discovery → harness compile (if compiler found) → policy observations → RESULTS.md
 ```
 
-If no compiler is found, run_lab.py records that honestly and continues with Python-side policy observations. Do NOT claim the C harness was validated if compilation failed.
+If no compiler is found, `run_lab.py` records that honestly (`compile_ok: false`) and continues with Python-side policy observations. **Do NOT claim the C harness was validated if compilation did not occur.** See `RESULTS.md` and `VERIFY.md` for the recorded compiler availability status.
 
 ## Repository layout
 
 - `generate_cases.py` – deterministic fake C string-copy cases (53 cases)
-- `run_lab.py` – compiler discovery, harness compile/run, policy observers, writes RESULTS.md + results_rows.csv/json
-- `c_string_copy_footgun_harness.c` – tiny C harness demonstrating strcpy/strncpy/strcat/strncat/snprintf/memcpy/memmove/strlen + project-local `copy_result_t` wrapper
+- `run_lab.py` – compiler discovery, harness compile/run (if compiler available), policy observers, writes RESULTS.md + results_rows.csv/json
+- `c_string_copy_footgun_harness.c` – C harness source demonstrating strcpy/strncpy/strcat/strncat/snprintf/memcpy/memmove/strlen + project-local `copy_result_t` wrapper. **Committed as source only; not compiler-validated in the no-compiler sandbox run recorded in RESULTS.md/VERIFY.md.**
 - `cases.json` – generated
-- `RESULTS.md` – summary tables, skip matrix, honest conclusions
+- `RESULTS.md` – summary tables, skip matrix, compiler availability status, honest conclusions. **Pass/fail counts are Python policy-observer results, not C execution results.**
 - `results_rows.csv` / `results_rows.json` – per-case/per-method artifact
-- `hn_thread_evidence.md` – HN thread evidence summary
-- `VERIFY.md` – fresh-clone verification transcript
+- `hn_thread_evidence.md` – HN thread evidence summary with comment IDs
+- `hn_comments_sanitized.txt` – full HN comment text dump (146 comments, ~52KB)
+- `hn_nodes_sanitized.json` – raw HN API node data (~80KB)
+- `VERIFY.md` – fresh-clone verification transcript with compiler availability status
 
 ## Case coverage (53 cases)
 

@@ -1,0 +1,769 @@
+[46434944] Tharre:
+It's worth noting that strcpy() isn't just bad from a security perspective, on any CPU that's not completely ancient it's bad from a performance perspective as well.Take the best case scenario, copying a string where the precise length is unknown but we know it will always fit in, say, 64 bytes.In earlier days, I would always have used strcpy() for this task, avoiding the "wasteful" extra copies memcpy() would make. It felt efficient, after all you only replace a i But of course it doesn't actually work that way, copying one byte at a time is inefficient so instead we copy as many as possible at once, which is easy to do with just a length check but not so easy if you need to find the null byte. And on top of that you're asking the CPU to predict a branch that depends completely on input data.
+
+---
+
+[46433746] t43562:
+I've always wondered at the motivatons of the various string routines in C - every one of them seems to have some huge caveat which makes them useless.After years I now think it's essential to have a library which records at least how much memory is allocated to a string along with the pointer.Something like this: 
+https://github.com/msteinert/bstring
+
+---
+
+[46433634] swinglock:
+I'm surprised curlx_strcopy doesn't return success. Sure you could check if dest[0] != '/0' if you care to, but that's not only clumsy to write but also error prone, and so checking for success is not encouraged.
+
+---
+
+[46435007] ahoka:
+"strncpy() is a weird function with a crappy API."Well if you bother looking up that it's originally created for non null-terminated strings, then it kinda makes sense.The real problem begun when static analyzers started to recommend using it instead of strcpy (the real alternative used to be snprintf, now strlcpy).
+
+---
+
+[46433731] loeg:
+A weird Annex-K like API.  The destination buffer size includes space for the trailing nul, but the source size only includes non-nul string bytes.I don't really think this adds anything over forcing callers to use memcpy directly, instead of strcpy.
+
+---
+
+[46433512] Scubabear68:
+From the article:> It has been proven numerous times already that strcpy in source code is like a honey pot for generating hallucinated vulnerability claimsThis closing thought in the article really stood out to me. Why even bother to run AI checking on C code if the AI flags strcpy() as a problem without caveat?
+
+---
+
+[46434936] Waterluvian:
+> Enforce checks close to codeThis makes a lot of sense but one time I find this gets messy is when there’s times I need to do checks earlier in a dataset’s lifetime. I don’t want to pay to check multiple times, but I don’t want to push the check up and it gets lost in a future refactor.I’m imagining a metadata for compile time that basically says, “to act on this data it must have been first checked. I don’t care when, so long as it has been by now.” Which I’m imagining is what Rust is doing with a Result type?  At that point it stops mattering how close to code a check is, as long as you type distinguish between checked and unchecked?
+
+---
+
+[46433301] pama:
+Congrats on the completion of this effort! C/C++ can be memory safe but take some effort.IMHO the timeline figure could benefit in mobile from using larger fonts. Most plotting libraries have horrible font size defaults. I wonder why no library picked the other extreme end: I have never seen too large an axis label yet.
+
+---
+
+[46434787] zahlman:
+> To make sure that the size checks cannot be separated from the copy itself we introduced a string copy replacement function the other day that takes the target buffer, target size, source buffer and source string length as arguments and only if the copy can be made and the null terminator also fits there, the operation is done.... And if the copy can't be made, apparently the destination is truncated as long as there's space (i.e., a null terminator is written at element 0). And it returns void.I'm really not sold on that being the best way to handle the case where copying is impossible. I'd think that's an error case that should be signaled with a non-zero return, leaving the destination buffer alone. Sure, that's not supposed to happen (hence the DEBUGASSERT macro), but still. It might even be easier to design around that possibility rather than making it the caller's responsibility to check first.
+
+---
+
+[46442629] rf15:
+it feels like the arguments' off-by-one buffer size vs string length is horrible ergonomics and will probably lead to further usage errors in the future.Yes I have a degree in bike shedding, why am I always getting this particular question
+
+---
+
+[46433584] stabbles:
+Apart from Daniel Sternberg's frequent complaints about AI slop, he also writes [1]> A new breed of AI-powered high quality code analyzers, primarily ZeroPath and Aisle Research, started pouring in bug reports to us with potential defects. We have fixed several hundred bugs as a direct result of those reports – so far.[1] https://daniel.haxx.se/blog/2025/12/23/a-curl-2025-review/
+
+---
+
+[46433360] snvzz:
+The AI chatbot vulnerability reports part sure is sad to read.Why is this even a thing and isn't opt-in?I dread the idea of starting to get notifications from them in my own projects.
+
+---
+
+[46448927] juliangmp:
+String handling (or arrays in general) has got to be the single aspect of C that I despise the most.
+Its clunky to use, often needs unnecessary copying (e.g. atoi) and makes it really easy to invoke undefined behavior.I still don't get why a simple ptr+size type hasn't made its way into the language. #embed got in but I guess a new type would have been too much... at least we got bool after a few decades.Also, for those that want the trimming behavior of strncpy but with the null termination, you can replace the strncpy calls with snprintf.
+You should also always enable -Wstringop-truncation.
+
+---
+
+[46433214] senthil_rajasek:
+Title is :No strcpy either@dang
+
+---
+
+[46442286] self_awareness:
+Bikeshedding.
+
+---
+
+[46433879] TZubiri:
+LMAOAfter all this time the initial AI Slop report was right:https://hackerone.com/reports/2298307
+
+---
+
+[46435289] amelius:
+We should just move away from null-terminated strings, where we can, as fast as we can.
+
+---
+
+[46436412] samshine:
+I haven't seen a strcpy use a scalar loop in ages. Is this an ARM thing?
+
+---
+
+[46435816] Someone:
+> I've always wondered at the motivatons of the various string routines in CThis idiom:    char hostname[20];
+    ...
+    strncpy( hostname, input, 20 );
+    hostname[19]=0;
+
+exists because strncpy was invented for copying file names that got stored in 14-byte arrays, zero terminated only if space permitted (https://stackoverflow.com/a/1454071)
+
+---
+
+[46433866] formerly_proven:
+strncpy is fairly easy, that's a special-purpose function for copying a C string into a fixed-width string, like typically used in old C applications for on-disk formats. E.g. you might have a char username[20] field which can contain up to 20 characters, with unused characters filled with NULs. That's what strncpy is for. The destination argument should always be a fixed-size char array.A couple years ago we got a new manual page courtesy of Alejandro Colomar just about this: https://man.archlinux.org/man/string_copying.7.en
+
+---
+
+[46435257] jerf:
+Yes, not having a length along with the string was a mistake. It dates from an era where every byte was precious and the thought of having two bytes instead of one for length was a significant loss.I have long wondered how terrible it would have been to have some sort of "varint" at the beginning instead of a hard-coded number of bytes, but I don't have enough experience with that generation to have a good feel for it.
+
+---
+
+[46438055] CupricTea:
+>every one of them seems to have some huge caveat which makes them uselessThey were added into C before enough of the people designing it knew the consequences they would bring. Another fundamentally broken oversight is array-to-pointer demotion in function signatures instead of having fat pointer types.
+
+---
+
+[46434165] lesuorac:
+It's from a time before computer viruses no?But also all of this book-keeping takes up extra time and space which is a trade-off easily made nowadays.
+
+---
+
+[46473222] Gibbon1:
+I remember some story that early on they thought function calls had little overhead and so used lots of little functions. And then found that actually no they were spending a lot of time doing function calls. But turned out no one cared.To me the string library looks like small snippets of early leet C code hoisted into a library.
+
+---
+
+[46434969] alexfoo:
+Yet software developed in C, with all of the foibles of its string routines, has been sold and running for years with trillions of USD is total sales.A library that records how much memory is allocated to a string along with the pointer isn't a necessity.Most people who write in C professionally are completely used to it although the footgun is (and all of the others are) always there lurking.You'd generally just see code like this:-    char hostname[20];
+    ...
+    strncpy( hostname, input, 20 );
+    hostname[19]=0;
+
+The problem obviously comes if you forget the line to NUL that last byte AND you have a input that is greater than 19 characters long.(It's also very easy to get this wrong, I almost wrote `hostname[20]=0;` first time round.)I remember debugging a problem 20+ years ago on a customer site with some software that used Sybase Open/Server that was crashing on startup. The underlying TDS communications protocol (https://www.freetds.org/tds.html) had a fixed 30 byte field for the hostname and the customer had a particularly long FQDN that was being copied in without any checks on its length. An easy fix once identified.Back then though the consequences of a buffer overrun were usually just a mild annoyance like a random crash or something like the Morris worm. Nowadays such a buffer overrun is deadly serious as it can easily lead to data exfiltration, an RCE and/or a complete compromise.Heartbleed and Mongobleed had nothing to do with C string functions. They were both caused by trusting user supplied payload lengths. (C string functions are still a huge source of problems though.)
+
+---
+
+[46433741] AlexeyBrin:
+I guess the idea is that if the code does not crash at this line:    DEBUGASSERT(slen 
+it means it succeeded. Although some compilers will remove the assertions in release builds.I would have preferred an explicit error code though.
+
+---
+
+[46439785] ahoka:
+Yeah, thought the same. Expect some CVEs in the future.
+
+---
+
+[46433991] jutter:
+This is especially bizarre given that he explains above that "it is rare that copying a partial string is the right choice" and that the previous solution returned an error...So now it silently fails and sets dest to an empty string without even partially copying anything!?
+
+---
+
+[46436257] manwe150:
+strlcpy is a BSD-ism that isn't in posix. The official recommendation is stpecpy. Unfortunately, it is only implemented in the documentation, but not available anywhere unless you roll your own:https://man7.org/linux/man-pages/man7/string_copying.7.html
+
+---
+
+[46435588] tourist2d:
+Your comment makes no sense. If it was designed for non-null terminated strings, why would it specifically pad after a null terminator?I looked up the actual reason for its inception:---    Rationale for the ANSI C Programming Language", Silicon Press 1990.
+
+    4.11.2.4 The strncpy function
+    strncpy was initially introduced into the C library to deal with fixed-length name fields in structures such as directory entries. Such fields are not used in the same way as strings: the trailing null is unnecessary for a maximum-length field, and setting trailing bytes for shorter names to null assures efficient field-wise comparisons. strncpy is not by origin a "bounded strcpy," and the Committee has preferred to recognize existing practice rather than alter the function to better suit it to such use.
+
+---
+
+[46433578] CGamesPlay:
+It's not quite as black and white as the article implies. The hallucinated vulnerability reports don't flag it "without caveat", they invent a convoluted proof of vulnerability with a logical error somewhere along the way, and then this is what gets submitted as the vulnerability report. That's why it's so agitating for the maintainers: it requires reading a "proof" and finding the contradiction.
+
+---
+
+[46434143] Sharlin:
+Because these people who run AI checks on OSS code and submit bogus bug reports either assume that AIs don't make mistakes, or just don't care if the report is legit or not, because there's little to no personal cost to them even if it isn't.
+
+---
+
+[46433569] saagarjha:
+Because people are stupid and use AI for things it is not good at.
+
+---
+
+[46442343] masklinn:
+> Which I’m imagining is what Rust is doing with a Result type?Result only carries information about the success / failure of an unspecified operation, it is not a long term signal and furthermore is not resistant to tampering (so a mistake processing the Result can undo the validation).What you want in this case is a new separate type, which can only be constructed through the check operation. This is the ethos of "parse, don't validate".And you're correct that in that case you don't need the check to be close to the consumer, in fact you want the opposite, for the check to be as close to the software edge as possible such that tainted data has limited to no presence inside the system and it's difficult or impossible to unwittingly interact with it.But of course the farther into that direction you head the more expressive a type system you need. And some constraints are not so easily checked as there's a multitude of consumers each with their own foibles, or as in this case you need to check the interaction of multiple runtime objects.
+
+---
+
+[46435815] deepsun:
+I'd use different types for those. Like Java's String vs. CharSequence.
+
+---
+
+[46433576] saagarjha:
+Removing strcpy from your code does not make it memory safe.
+
+---
+
+[46433765] Tempest1981:
+Yes, the graph font-sizes seem intended for printing them on a single sheet of paper, vs squeezed into a single column in a blog.
+
+---
+
+[46433828] molf:
+That's very interesting! It links to:https://daniel.haxx.se/blog/2025/10/10/a-new-breed-of-analyz...and its HN discussion:https://news.ycombinator.com/item?id=45449348
+
+---
+
+[46433821] p2detar:
+So? Those are automated analysis tools and by "slop" he seems to refer to careless reports crafted using AI, solely for collecting bounties:https://gist.github.com/bagder/07f7581f6e3d78ef37dfbfc81fd1d...
+
+---
+
+[46433543] trollbridge:
+Making a strcpy honeypot doesn’t sound like a bad idea…  void nobody_calls_me(const char *stuff) {
+          char *a, *b;
+          const size_t c = 1024;
+
+          a = calloc(c);
+          if (!a) return;
+          b = malloc(c);
+          if (!b) {
+                  free(a);
+                  return;
+          }
+          strncpy(a, stuff, c - 1);
+          strcpy(b, a);
+          strcpy(a, b);
+          free(a);
+          free(b);
+  }
+
+Some clever obfuscation would make this even more effective.
+
+---
+
+[46434614] easterncalculus:
+It's a symptom of complete failure of this industry that maintainers are even remotely thinking about, much less implementing changes in their work to stave off harassment over false security impact from bots.
+
+---
+
+[46433381] Y_Y:
+Because humans generate and relay the slop-reports in the hopes of being helpful
+
+---
+
+[46433450] Snild:
+I don't see a problem with that, but for the record, the title on the site is lower-case for me (both browser tab title, and the header when in reader mode).
+
+---
+
+[46446996] user____name:
+Libraries this well established can afford to bikeshed.
+
+---
+
+[46434285] lesuorac:
+?Nonce and websockets don't appear at all in the blog post. The only thing the ai slop got right is that by removing strcpy curl will get less issues [submitted about it].
+
+---
+
+[46436000] masklinn:
+We have. C is basically the only langage in any sort of widespread use where terminated strings are a thing.Which of course causes issues when languages with more proper strings interact with C but there you go.
+
+---
+
+[46435410] raverbashing:
+YesAnd maybe even have a (arch dependent) string buffer zone where the actual memory length is a multiple of 4 or even 8
+
+---
+
+[46442121] amluto:
+Modern x86 CPUs have actual instructions for strcpy that work fairly well. There were several false starts along the way, but the performance is fine now.
+
+---
+
+[46437070] manwe150:
+The spec and some sanitizers use a scalar loop (because they need to avoid mistakenly detecting UB), but real world libc seem unlikely to use a scalar loop.
+
+---
+
+[46436063] masklinn:
+Technically strncpy was invented to interact with null-padded fixed-size strings in general. We’ve mostly (though not entirely) moved away from them but fixed-size strings used to be very common. You can see them all over old file formats still.
+
+---
+
+[46439551] BobbyTables2:
+It’s also horrible because each project ends up reinventing their own abstractions or solutions for dealing with common things.Destroys a lot of opportunity for code reuse / integration.  Especially within a company.Alternatively their code base remains a steaming pile of crap riddled with vulnerabilities.
+
+---
+
+[46442925] messe:
+I've always assumed that the n in strncpy was meant to signify a max length N. Now I'm wondering if it might have stood for NUL padding.
+
+---
+
+[46434060] Cyph0n:
+strncpy doesn’t handle overlapping buffers (undefined behavior). Better to use strncpy_s (if you can) as it is safer overall. See: https://en.cppreference.com/w/c/string/byte/strncpy.html.As an aside, this is part of the reason why there are so many C successor languages: you can end up with undefined behavior if you don’t always carefully read the docs.
+
+---
+
+[46434670] dundarious:
+Yes, these were also common in several wire formats I had to use for market data/entry.You would think char symbol[20] would be inefficient for such performance sensitive software, but for the vast majority of exchanges, their technical competencies were not there to properly replace these readable symbol/IDs with a compact/opaque integer ID like a u32. Several exchanges tried and they had numerous issues with IDs not being "properly" unique across symbol types, or time (restarts intra-day or shortly before the open were a common nightmare), etc. A char symbol[20] and strncpy was a dream by comparison.
+
+---
+
+[46433897] ufo:
+A big footgun with strncpy is that the output string may not be null terminated.
+
+---
+
+[46434781] dingi:
+Isn't strlcpy the safer solution these days?
+
+---
+
+[46434430] rini17:
+Yes, in the old times if you crashed a program or whole computer with invalid input, it was your fault.Viruses did exist, and these were considered users' fault too.
+
+---
+
+[46435154] __float:
+> Yet software developed in C, with all of the foibles of its string routines, has been sold and running for years with trillions of USD is total sales.This doesn't seem very relevant. The same can be said of countless other bad APIs: see years of bad PHP, tons of memory safety bugs in C, and things that have surely led to significant sums of money lost.> It's also very easy to get this wrong, I almost wrote `hostname[20]=0;` first time round.Why would you do this separately every single time, then?The problem with bad APIs is that even the best programmers will occasionally make a mistake, and you should use interfaces (or...languages!) that prevent it from happening in the first place.The fact we've gotten as far as we have with C does not mean this is a defensible API.
+
+---
+
+[46435806] t43562:
+I learned C in about 1989/1990 and have used it a lot since then.  I have worked on a fair amount of rotten commercial C code, sold at a high price, in which every millimeter of extra functionality was bought with sweat and blood. I once spent a month finding a memory corruption issue that happened every 2 weeks with a completely different stack trace which, in the end, required a 1-line fix.The effort was usually out of proportion with the achievement.I crashed my own computer a lot before I got Linux. Do you remember far pointers? :-( In those days millions of dollars were made by operating systems without memory protection that couldn't address more than 640k of memory.  One accepted that programs sometimes crashed the whole computer - about once a week on average.Despite considering myself an acceptable programmer I still make mistakes in C quite easily and I use valgrind or the sanitizers quite heavily to save myself from them.  I think the proliferation of other languages is the result of all this.In spite of this I find C elegant and I think 90% of my errors are in string handling so therefore if it had a decent string handling library it would be enormously better.   I don't really think pure ASCIIZ strings are so marvelous or so fast that we have to accept their bullshit.
+
+---
+
+[46439701] throw0101c:
+> The underlying TDS communications protocol (https://www.freetds.org/tds.html) had a fixed 30 byte field for the hostname and the customer had a particularly long FQDN that was being copied in without any checks on its length. An easy fix once identified.I had to file a bug with a vendor because their hostname handling had a similar issue: I think it was 64 max.There was some pushback about if it was "really" a problem, so I ended up quoting the relevant RFCs to argue that they were not compliant with Internet standards, and eventually they fixed the issue.
+
+---
+
+[46439209] saghm:
+> Yet software developed in C, with all of the foibles of its string routines, has been sold and running for years with trillions of USD is total sales.Even with the premise that sales of software is a good metric for analyzing design of the language (which I think is arguable at best), we don't know that even more money might have been made with better strings in C. You coming justify pretty much anything with that argument. MongoDB (which indicentally is on C++ and presumably makes plenty of use of std::string) made millions of dollars despite having the bug you mention, so why bother fixing it?
+
+---
+
+[46436802] bluecalm:
+>>(It's also very easy to get this wrong, I almost wrote `hostname[20]=0;` first time round.)Impossible to get wrong with a modern compiler that will warn you on that or LSP that will scream the moment you type ; and hit enter/esc.
+
+---
+
+[46434649] swinglock:
+assert() is always only compiled if NDEBUG is not defined. I hope DEBUGASSERT is just that too because it really sounds like it, even more so than assert does.But regardless of whether the assert is compiled or not, its presence strongly signals that "in a C program strcpy should only be used when we have full control of both" is true for this new function as well.
+
+---
+
+[46444537] spacechild1:
+What kind of CVE would you expect? The destination buffer will always contain a valid null-terminated string (as long as the buffer size is not zero).
+
+---
+
+[46436969] bentley:
+strlcpy is in POSIX now, actually.https://pubs.opengroup.org/onlinepubs/9799919799/functions/s...
+
+---
+
+[46436904] tptacek:
+Who cares? Just vendor it into your project. It's a tiny string manipulation function.(I agree with the author of the piece that strlcpy doesn't actually solve the real problem.)
+
+---
+
+[46437704] masklinn:
+> If it was designed for non-null terminated strings, why would it specifically pad after a null terminator?Padded and terminated strings are completely different beasts. And the text you quote tells you black on white that strncpy deals in padded strings.
+
+---
+
+[46437003] bentley:
+“fixed-length name fields in structures such as directory entries”“the trailing null is unnecessary for a maximum-length field”That is a non–null terminated string.
+
+---
+
+[46457617] skirge:
+even stupid report may give you invites to private programs
+
+---
+
+[46433660] Tempest1981:
+> people are stupidpeople overestimate AI
+
+---
+
+[46437199] pama:
+Apologies. I never meant to imply that of course. It is a long and arduous process, and this is but a single tiny step.
+
+---
+
+[46434442] kjjfnkeknrn:
+Removing strcpy from your code does make it a little memory safer.
+
+---
+
+[46435377] snvzz:
+That got those Core SDI abo vibes.Flashback of writing exploits for these back in high school.
+
+---
+
+[46435237] nottorp:
+There is or was a cash bug bounty.And even if not, the motivation is building a reputation as a security “expert”.
+
+---
+
+[46433516] captn3m0:
+s/being helpful/making money.
+
+---
+
+[46433816] 1f60c:
+I think the submission originally had a typo ("strpy", with no C)
+
+---
+
+[46452120] self_awareness:
+True. But for most projects, this is pretty much counterproductive.
+
+---
+
+[46439044] saghm:
+Given that the C ABI is basically the standard for how arbitrary languages interact, I wouldn't characterize all of the headaches this can cause as just when other languages interact with C; arguably it can come up when any two languages interact at all, even if neither are C.
+
+---
+
+[46436646] thayne:
+We should move away from it in C usage as well.Ideally, the standard would include a type that packages a string with its length, and had functions that used that type and/or took the length as an argument. But even without that it is possible avoid using null terminated strings in a lot of places.
+
+---
+
+[46442924] throwaway2037:
+Doesn't C++'s std::string also use a null terminated char* string internally?  Do you count that also?
+
+---
+
+[46442595] ofalkaed:
+>Which of course causes issues when languages with more proper strings interact with C but there you go.Is is an issue of "more proper strings" or just languages trying to have their cake and eat it too? have their sense of a string and C interoperability. I think this is were we see the strength of Zig, it's strings are designed around and extend the C idea of string instead of just saying our way is better and we are just going to blame C for any friction.My standard disclaimer comes into play here, I am not a programmer and very much a humanities sort, I could be completely missing what is obvious. Just trying to understand better.Edit: That was not quite right, Zig has its string literal for C compatibility. There is something I am missing here in my understanding of strings in the broader sense.
+
+---
+
+[46442423] adrian_b:
+They have instructions for memcpy/memmove (i.e. rep movs), not for strcpy.They also have instructions for strlen (i.e. rep scasb), so you could implement strcpy with very few instructions by finding the length and then copying the string.Executing first strlen, then validating the sizes and then copying with memcpy if possible is actually the recommended way for implementing a replacement for strcpy, inclusive in the parent article.On modern Intel/AMD CPUs, "rep movs" is usually the optimal way to implement memcpy above some threshold of data size, e.g. on older AMD Zen 3 CPUs the threshold was 2 kB. I have not tested more recent CPUs to see if the threshold has diminished.On the old AMD Zen 3 there was also a certain size range above 2 kB at sizes comparable with the L3 cache memory where their implementation interacted somehow badly with the cache and using "non-temporal" vector register transfers outperformed "rep movs". Despite that performance bug for certain string lengths, using "rep movs" for any size above 2 kB gave a good enough performance.More recent CPUs might be better than that.
+
+---
+
+[46444047] delaminator:
+That's how everything works. You start off with some atomics and build up from there. Things that people like get standardized, And before you know what's going on it's called stdlib.It took a decade between Stroustrup's 1985 book "The C++ Programming Language" and the STL proposed and accepted by the ANSI/ISO committee in 1994.
+
+---
+
+[46434438] Asooka:
+Back when strncpy was written there was no undefined behaviour (as the compiler interprets it today). The result would depend on the implementation and might differ between invocations, but it was never the "this will not happen" footgun of today. The modern interpretation of undefined behaviour in C is a big blemish on the otherwise excellent standards committee, committed (hah) in the name of extremely dubious performance claims. If "undefined" meaning "left to the implementation" was good enough when CPU frequency was measured in MHz and nobody had more than one, surely it is good enough today too.Also I'm not sure what you mean with C successor languages not having undefined behaviour, as both Rust and Zig inherit it wholesale from LLVM. At least last I checked that was the case, correct me if I am wrong. Go, Java and C# all have sane behaviour, but those are much higher level.
+
+---
+
+[46435636] formerly_proven:
+> strncpy doesn’t handle overlapping buffers (undefined behavior).It would make little sense for strncpy to handle this case, since, as I pointed out above, it converts between different kinds of strings.
+
+---
+
+[46433973] kccqzy:
+Yeah but fixed width strings don’t need null termination. You know exactly how long the string is. No need to find that null byte.
+
+---
+
+[46435830] jandrese:
+I don't think anybody in this thread read the article.Strlcpy tries to improve the situation but still has problems.  As the article points out it is almost never desirable to truncate a string passed into strXcpy, yet that is what all of those functions do.  Even worse, they attempt to run to the end of the string regardless of the size parameter so they don't even necessarily save you from the unterminated string case.  They also do loads of unnecessary work, especially if your source string is very long (like a mmaped text file).Strncpy got this behavior because it was trying to implement the dubious truncation feature and needed to tell the programmer where their data was truncated.  Strlcpy adopted the same behavior because it was trying to be a drop in replacement.  But it was a dumb idea from the start and it causes a lot of pain unnecessarily.The crazy thing is that strcpy has the best interface, but of course it's only useful in cases where you have externally verified that the copy is safe before you call it, and as the article points out if you know this then you can just use memcpy instead.As you ponder the situation you inevitably come to the conclusion that it would have been better if strings brought along their own length parameter instead of relying on a terminator, but then you realize that in order to support editing of the string as well as passing substrings you'll need to have some struct that has the base pointer, length, and possibly a substring offset and length and you've just re-invented slices.  It's also clear why a system like this was not invented for the original C that was developed on PDP machines with just a few hundred KB of RAM.Is it really too late for the C committee to not develop a modern string library that ships with base C26 or C27?  I get that they really hate adding features, but C strings have been a problem for over 50 years now, and I'm not advocating for the old strings to be removed or even deprecated at this time. 
+
+---
+
+[46435460] alexfoo:
+Sure, the post I was replying to made it sound like it's a surprise that anything written in C could ever have been a success.Not many people starting a new project (commercial or otherwise) are likely to start with C, for very good reason. I'd have to have a very compelling reason to do so, as you say there are plenty of more suitable alternatives. Years ago many of the third party libraries available only had C style ABIs and calling these from other languages was clumsy and convoluted (and would often require implementing cstring style strings in another language).> Why would you do this separately every single time, then?It was just an illustration or what people used to do. The "set the trailing NUL byte after a strncpy() call" just became a thing lots of people did and lots of people looked for in code reviews - I've even seen automated checks. It was in a similar bucket to "stuff is allocated, let me make sure it is freed in every code path so there aren't any memory leaks", etc.Many others would have written their own function like `curlx_strcopy()` in the original article, it's not a novel concept to write your own function to implement a better version of an API.
+
+---
+
+[46439131] alexfoo:
+> I learned C in about 1989/1990 and have used it a lot since then. I have worked on a fair amount of rotten commercial C code, sold at a high price, in which every millimeter of extra functionality was bought with sweat and blood. I once spent a month finding a memory corruption issue that happened every 2 weeks with a completely different stack trace which, in the end, required a 1-line fix.That sums up one of my old roles where this kind of thing accounted for about 10% of my time over a 10 year period.Heisenbug, mutating stack traces, weeks between occurrences, 1 line fix, do some other interesting work before the next weird thing comes along.I think the longest running one I had (several years) was some weird interaction between pthread_cond_wait() and pthread_cond_broadcast(). Ugh.
+
+---
+
+[46443568] alexfoo:
+That wasn't really the point I was making.It was more a response to the OP's comment of:> I've always wondered at the motivatons of the various string routines in C - every one of them seems to have some huge caveat which makes them useless.Which, to me, sounded like it was a surprise that anything written in C could be a success at all given that something as basic as the string handling (which is pretty fundamental) is bordering on useless.As I put in my other comment, there were plenty of reasons way back in the 80s/90s why C was chosen for a lot of software, and hardly any (if any at all) of those reasons remain nowadays.> MongoDB (which indicentally is on C++ and presumably makes plenty of use of std::string) made millions of dollars despite having the bug you mention, so why bother fixing it?Again, that's not the point I was making, no-one said anything about not fixing something because of how much money it has made.All it comes down to is that a lot of very successful software is very shoddily written, in a variety of languages, not just notoriously memory-unsafe languages like C. Well written software, or software written in a "better" language, might have a better chance of "succeeding" (whatever that means), but that doesn't mean that awful software can't succeed.
+
+---
+
+[46437017] manwe150:
+Ah, good point. I forgot it had just gotten added. Past context https://news.ycombinator.com/item?id=36765747
+
+---
+
+[46434329] lesuorac:
+Its weird though because looking through the hackone reports in the slop wiki page there aren't actually reproduction steps. It's basically always just a line of code and an explanation of how a function can be mis-used but not a "make a webserver that has this hardcoded response".So like why doesn't the person iterate with the AI until they understand the bug (and then ultimately discover it doesn't exist)? Like have any of this bug reports actually paid out? It seems like quickly people should just give up from a lack of rewards.
+
+---
+
+[46434988] alexfoo:
+Removing strcpy from your code makes it a little less memory unsafe.(Depends on what you replace it with obviously...)
+
+---
+
+[46444812] trollbridge:
+In an interesting way, this is an attempt to exploit LLMs into revealing themselves.
+
+---
+
+[46434234] Snild:
+Ah.
+
+---
+
+[46439909] tialaramex:
+Arguably the C ABI was one of those Worse is Better problems like the C language itself. Better languages already existed, but C was basically free and easy to implement, so now there's C everywhere. It seems likely that if not for this ABI we might have an ABI today where all languages which want to offer FFI can agree on how to represent say the immutable slice reference type (Rust's &[T], C++ std::span)Just an agreed ABI for slices would be enough that language A's growable array type (Rust's Vec, C++ std::vector, but equally the ArrayList or some languages even call this just "list") of say 32-bit signed integers can give a (read only) reference to language B to look at all these 32-bit signed integers without language's A and B having to agree how growable arrays work at all. In C today you have to go wrestle with the ABI pig for much less.
+
+---
+
+[46439523] BobbyTables2:
+The standard C library can’t even manipulate NUL terminated strings for common use cases…Simple things aren’t simple - want to append a formatted string to an existing buffer? Good luck!  Now do it with UTF-8!I truly feel the standard library design did more disservice to C than the language definition itself.
+
+---
+
+[46443359] zabzonk:
+Since C++11 it is required to be null-terminated, you can access the terminator with (for e.g.) operator[], and the string can contain non-terminator null characters.
+
+---
+
+[46442943] anal_reactor:
+This doesn't count because it's implemented in a way "if you don't need null-terminated string, you won't see it".
+
+---
+
+[46445132] masklinn:
+It has nul-termination for compatibility with C, so you can call c_str and get a C string. With the caveat that an std::string can have nuls anywhere, which breaks C semantics. But C++ does not use that itself.
+
+---
+
+[46443463] amluto:
+Whoops, this proves I’m not really a userspace assembly programmer…But you can indeed safely read past the end if a buffer if you don’t cross a page boundary and you aren’t bound by the rules of, say, C.
+
+---
+
+[46442588] gizmo686:
+X86-64 has the REP prefix for string operation. When combined with the MOVS instruction, that is pretty much an instruction for strcpy.
+
+---
+
+[46461520] BobbyTables2:
+Yeah but those standard libraries are still inadequate 30 years later.Imagine a hypothetical Python scenario where every application and library had their own list implementations with differently named methods and behavior.Yet C is exactly that.  Is it not common place to log messages to a file?  How many applications and code bases DO NOT use syslog().  And if one wants to use syslog, then assert failures won’t get logged there…Sure, with a custom assertion and logging framework one can get reasonable behavior.  But it’s not automatic. Hence, a Tower of Babel …
+
+---
+
+[46435010] Cyph0n:
+The problem isn't undefined behavior per se; I was using it as an example for strncpy. Rust is a no - in fact, the goal of (safe) Rust is to eliminate undefined behavior. Zig on the other hand I don't know about.In general, I see two issues at play here:1. C relies heavily on unsized pointers (vs. fat pointers), which is why strncpy_s had to "break" strncpy in order to improve bounds checks.2. strncpy memory aliasing restrictions are not encoded in the API and can only be conveyed through docs. This is a footgun.For (1), Rust APIs of this type operate on sized slices, or in the case of strings, string slices. Zig defines strings as sized byte slices.For (2), Rust enforces this invariant via the borrow checker by disallowing (at compile-time) a shared slice reference that points to an overlapping mutable slice reference. In other words, an API like this is simply not possible to define in (safe) Rust, which means you (as the user) do not need to pore over the docs for each stdlib function you use looking for memory-related footguns.
+
+---
+
+[46440056] tialaramex:
+Rust safe subset doesn't have UB. At all. So long as you never write the "unsafe" keyword you're fine, the compiler will check you are obeying all of the language rules at all times.Whereas in C, oops, sorry, you broke a rule you didn't even know existed and so that's Undefined Behaviour left and right. Some of it you could argue falls into the category you're describing, where in a better world it should have been made Implementation Defined, not UB, and too bad. However lots of it is just because the language was designed a very long time ago and prioritized ease of implementation.If you wish the language was properly defined, you should use (safe) Rust. If you just wish that when you write nonsense the compiler should somehow guess what you meant and do that, you're not actually a programmer, find a practice which suits you better - take up knitting, learn to paint, something like that.
+
+---
+
+[46434083] ninkendo:
+Until you pass them as a `char *` by accident and it eventually makes its way to some code that does expect null termination.There’s languages where you can be quite confident your string will never need null termination… but C is not one of them.
+
+---
+
+[46434113] Sharlin:
+Good luck though remembering not to pass one to any function that does expect to find a null terminator.
+
+---
+
+[46436401] cyberpunk:
+Do they really need to at this point? Just include bstrlib and stop thinking about it?
+
+---
+
+[46444671] jcranmer:
+> Is it really too late for the C committee to not develop a modern string library that ships with base C26 or C27? I get that they really hate adding features, but C strings have been a problem for over 50 years now, and I'm not advocating for the old strings to be removed or even deprecated at this time. Just that a modern replacement be available and to encourage people to use them for new code.The next version of C (C2y) is expected to be C29, not C26 or C27. And work has been done on a new string library: see, e.g. https://www.open-std.org/jtc1/sc22/wg14/www/docs/n3306.pdf (not the only proposal!). That said, I would be surprised if anything gets merged into the standard in less than a decade, simply because the committee is not organizationally set up for major library overhauls like this.
+
+---
+
+[46447343] saghm:
+>>  I've always wondered at the motivatons of the various string routines in C - every one of them seems to have some huge caveat which makes them useless.> Which, to me, sounded like it was a surprise that anything written in C could be a success at all given that something as basic as the string handling (which is pretty fundamental) is bordering on useless.I guess to me that seems like pretty big logical leap. It seems equally plausible that they consider C successful and not going anywhere, so they care about improving the way strings are handled (and therefore gave an example of something they would consider better). Your response seems to be trying to defend against an implication that wasn't apparent in what you were responding to, so it wasn't clear at all to me what point you were trying to make.
+
+---
+
+[46434924] zahlman:
+> So like why doesn't the person iterate with the AI until they understand the bug (and then ultimately discover it doesn't exist)? Like have any of this bug reports actually paid out? It seems like quickly people should just give up from a lack of rewards.This sounds a bit like expecting the people who followed a "make your own drop-shipping company" tutorial to try using the products they're shipping to understand that they suck.
+
+---
+
+[46434405] amenhotep:
+As long as the number of people newly being convinced that AI generated bounty demands are a good way to make money equals or exceeds the number of people realising it isn't and giving up, the problem remains.Not helped, I imagine, that once you realise it doesn't work, an easy pivot is to start convincing new people that it'll work if they pay you money for a course on it.
+
+---
+
+[46446199] umanwizard:
+Have you ever had the chance to look at the public-facing support email inbox for a SaaS company? You get absolutely bombarded with these low quality “bug reports” from people trying to farm bounties. They do not care whether the bug is real or impactful, it’s a game of volume for them.
+
+---
+
+[46447416] saghm:
+From a historical perspective, my guess is that C interop in some fashion has basically been table stakes for any language of the past few decades, and when you want to plug two arbitrary languages together, if that's the one common API they both speak, it's the most obvious way to do it. I'm not sure I'd consider this "worse is better" as much as just self-reinforcing emergent behavior. I'm not even sure I can come up with any example of an explicitly designed format for arbitrary language interop other than maybe WASM (which of course is a lot more than just that, but it does try to tackle the problem of letting languages interact in an agnostic way).
+
+---
+
+[46444306] smeeagain2:
+[dead]
+
+---
+
+[46442897] messe:
+No, it's an instruction for memcpy. You still need to compute the string length first, which means touching every byte individually because you can't use SIMD due to alignment assumptions (or lack thereof) and the potential to touch uninitialized or unmapped memory (when the string crosses a page boundary).
+
+---
+
+[46462764] delaminator:
+That's Linux C you're talking about. Many, many, many C codebases don't use syslog.
+
+---
+
+[46440117] loeg:
+> For (2), Rust enforces this invariant via the borrow checker by disallowing (at compile-time) a shared slice reference that points to an overlapping mutable slice reference.At least the last time I cared about this, the borrow checker wouldn't allow mutable and immutable borrows from the same underlying object, even if they did not overlap.  (Which is more restrictive, in an obnoxious way.)
+
+---
+
+[46434784] kccqzy:
+You don’t do that by accident. Fixed-width strings are thoroughly outdated and unusual. Your mental model of them is very different from regular C strings.
+
+---
+
+[46434490] kevin_thibedeau:
+Ignore the prefix and always treat strncpy() as a special binary data operation for an era where shaving bytes on storage was important. It's for copying into a struct with array fields or direct to an encoded block of memory. In that context you will never be dependent on the presence of NUL. The only safe usage with strings is to check for NUL on every use or wrap it. At that point you may as well switch to a new function with better semantics.
+
+---
+
+[46434960] integralid:
+That's not a problem with strncpy, right? Fixed width records are a thing of the past, and even then it was only used for on-disk storage.
+
+---
+
+[46434175] andrepd:
+Seriously. We have type systems and compilers that help us to not forget these things. It's not the 70s anymore!
+
+---
+
+[46436524] jandrese:
+Having an official replacement is the only thing that I think will motivate the majority C programmers to finally switch.
+
+---
+
+[46434931] zahlman:
+Apparently FOSS developers have been getting this kind of slop report even though they clearly don't offer a bug bounty.
+
+---
+
+[46443014] ncruces:
+You do aligned reads, which can't crash.Not even musl uses a scalar loop, if it can do aligned reads/writes: https://git.musl-libc.org/cgit/musl/tree/src/string/stpcpy.cAnd you don't need to worry about C UB if you do it in ASM.
+
+---
+
+[46466320] BobbyTables2:
+Exactly!At least Python has a standardized “logging” module where applications can control the format and destination.But with the standard C library, there is little common ground. Solutions to the same basic problems are constantly reinvented - differently.
+
+---
+
+[46440311] Cyph0n:
+Do you mean borrows for different fields of a struct? If so, that’s handled today - it’s sometimes called “splitting borrows”: https://doc.rust-lang.org/nomicon/borrow-splitting.html
+
+---
+
+[46435849] arka2147483647:
+Sadly, all the bug trackers are full of bugs relating to char*. So you very much do those by accident. And in C, fixed width strings are not in any way rare or unusual. Go to any c codebase you will find stuff like:   char buf[12];
+   sprintf(buf, "%s%s", this, that); // or
+   strcat(buf, ...) // or
+   strncpy(buf, ...) // and so on..
+
+---
+
+[46435837] ninkendo:
+The mental model doesn’t matter, it’s the compiler’s model that is going to bite you. If the compiler doesn’t reject it, it will happen eventually.
+
+---
+
+[46442285] masklinn:
+> an era where shaving bytes on storage was importantFixed size strings don’t save bytes on storage tho, when the bank reserves 20 bytes for first name and you’re called Jon that’s 17 bytes doing fuckall.What they do is make the entire record fixed size and give every field a fixed relative position so it’s very easy to access items, move record around, reuse allocations (or use static allocation), … cycles is what they save.
+
+---
+
+[46436358] pixl97:
+There are no shortage of people wanting to be able to  say they found CVE-XXXX-XXX or a bug in product X.
+
+---
+
+[46440478] loeg:
+Not exactly -- independent subranges of the same range (as would be relevant to something like memcpy/memmove/strcpy).  E.g.,https://godbolt.org/z/YhGajnhEGIt's mentioned later in the same article you shared above.
+
+---
+
+[46437174] snickerbockers:
+Thats only really a problem if this and that are coming from an external source and have not been truncated.  I really don't see this as any more significant of a problem than all the many high level scripting languages where you can potentially inject code into a variable and interpret it.There are certainly ways in which the c library could've been better (eg making strncpy handle the case where the source string is longer than n) but ultimately it will always need to operate under the assumption that the people using it are both competent and acting in good faith.
+
+---
+
+[46437954] kccqzy:
+When you write such code your mental model is C strings, not fixed-width strings, the intended use case for strncpy.
+
+---
+
+[46446218] josefx:
+> Fixed size strings don’t save bytes on storage thoI have seen plenty of fixed strings in the 8 to 20 byte range, not much, but often enough for a passable identifier. The memory management overhead for a simple dynamically allocated string is probably larger than that even on a 32 bit system.
+
+---
+
+[46443053] oneshtein:
+fn f() {
+    let mut v = vec![1, 2, 3, 4, 5];
+    let (header, tail) = v.split_at_mut(1);
+    b(&header[0], &mut tail[0]);
+  }
+
+---
+
+[46440566] Cyph0n:
+Gotcha. There is a split_at_mut method that splits a mutable slice reference into two. That doesn’t address the problem you had, but I think that’s best you can do with safe Rust.
+
+---
+
+[46446700] loeg:
+split_at_mut is just unsafe code (and sibling comment mentioned it hours before you did).  The borrow checker doesn't natively understand that.
+
+---
+
+[46440824] loeg:
+Yeah. It just isn't something the borrow checker natively understands.
+
+---
+
+[46448859] Cyph0n:
+It is safe btw. The difference is that it returns two mutable references vs. one shared ref and one mutable ref. But as they noted, a mutable ref can always be “downgraded” into a shared ref.
+
+---
+
+[46452412] loeg:
+The implementation is unsafe, as I said:> split_at_mut is just unsafe code (and sibling comment mentioned it hours before you did). The borrow checker doesn't natively understand that.https://doc.rust-lang.org/src/core/slice/mod.rs.html#2086
+
+---
+
+[46456936] Cyph0n:
+No, that’s the unchecked version. Two people are telling you that this method exists and is safe, so I am not sure why you’re still doubting this lol.
+
+---
+
+[46457041] bmandale:
+The checked variant just calls the unchecked, and the panicking variant calls the checked variant. They all need to call unsafe code. See here for details: https://doc.rust-lang.org/nomicon/borrow-splitting.html
+
+---
+
+[46457655] Cyph0n:
+Then you misunderstand what unsafe means in Rust. Every single Rust binary needs to eventually call unsafe code at some layer of the callstack.Is creating a TCP socket using stdlib functions unsafe? How about writing to a file? Or acquiring a mutex?I would suggest doing some more reading before chiming in here :)
+
+---
+
+[46472607] bmandale:
+You have totally misunderstood what the person you are talking with means by unsafe. Perhaps you should resolve that prior to such condescensions.
+
+---
+
+[46492204] Cyph0n:
+Indeed I have haha - my bad :)Easier to lose context with longer comment chains...
